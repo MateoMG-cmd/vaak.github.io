@@ -1,0 +1,1893 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Vaak OutBreak: hub en directo, sistema de dificultad, registro de supervivencia y Centro de Control.">
+<meta name="theme-color" content="#000000">
+<title>Vaak OutBreak · Serie de supervivencia</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23000'/><g fill='none' stroke='%23333336' stroke-width='1.5'><ellipse cx='32' cy='34' rx='24' ry='13'/><ellipse cx='32' cy='34' rx='16' ry='8.5'/><ellipse cx='32' cy='34' rx='8' ry='4'/></g><line x1='0' y1='34' x2='64' y2='34' stroke='%23282828' stroke-width='1.5'/><circle cx='32' cy='34' r='3' fill='%23f5f5f7'/></svg>">
+
+<style>
+/* ==========================================================================
+   TOKENS
+   ========================================================================== */
+:root{
+  --color-obsidian:#000000;
+  --color-graphite:#0e0e0e;
+  --color-carbon:#1d1d1f;
+  --color-steel:#333336;
+  --color-slate:#6e6e73;
+  --color-ash:#86868b;
+  --color-porcelain:#f5f5f7;
+  --color-apple-blue:#0071e3;
+  --color-apple-blue-hover:#0077ed;
+  --color-copper-new:#b64400;
+  --color-blood:#dc2626;
+  --color-blood-dim:rgb(220 38 38 / .12);
+  --color-keyline:rgb(40 40 40);
+  --color-keyline-strong:rgb(56 56 58);
+
+  --font-display:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-text:"SF Pro Text",-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-mono:"SF Mono",ui-monospace,"JetBrains Mono","Cascadia Mono",Menlo,Consolas,monospace;
+
+  --text-hero:clamp(2.75rem,7vw,5rem);
+  --text-display:clamp(1.9rem,4.4vw,3.25rem);
+  --text-title:clamp(1.3rem,2.2vw,1.75rem);
+  --text-lead:clamp(1.0625rem,1.5vw,1.3125rem);
+  --text-body:1.0625rem;
+  --text-meta:.8125rem;
+  --text-micro:.6875rem;
+
+  --radius-3xl:28px;
+  --radius-inner:18px;
+  --radius-field:12px;
+  --radius-pill:9999px;
+  --radius-nav:170px;
+
+  --nav-height:44px;
+  --ticker-height:32px;
+  --shell-max:1360px;
+  --gutter:clamp(1.25rem,4.5vw,2.75rem);
+
+  --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  --ease-out-quint:cubic-bezier(.22,1,.36,1);
+  --dur-1:160ms;
+  --dur-2:280ms;
+  --dur-3:620ms;
+}
+
+/* ==========================================================================
+   BASE — sin sombras en ninguna parte del sistema
+   ========================================================================== */
+*,*::before,*::after{box-sizing:border-box;box-shadow:none!important}
+html{background:var(--color-obsidian);color-scheme:dark;-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-height) + var(--ticker-height) + 16px)}
+body{margin:0;background:var(--color-obsidian);color:var(--color-porcelain);font-family:var(--font-text);font-size:var(--text-body);line-height:1.47;letter-spacing:-.011em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:600;letter-spacing:-.015em;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;padding:0}
+ul,ol{margin:0;padding:0;list-style:none}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+code,pre{font-family:var(--font-mono)}
+::selection{background:var(--color-porcelain);color:var(--color-obsidian)}
+:focus-visible{outline:2px solid var(--color-apple-blue);outline-offset:3px;border-radius:4px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-steel);border:3px solid var(--color-obsidian);border-radius:9999px}
+::-webkit-scrollbar-thumb:hover{background:var(--color-slate)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:absolute;top:8px;left:8px;z-index:200;display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:9999px;background:var(--color-porcelain);color:var(--color-obsidian);font-size:var(--text-meta);font-weight:500;transform:translateY(-240%);transition:transform var(--dur-1) var(--ease-out-expo)}
+.skip-link:focus{transform:translateY(0)}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.shell{width:100%;max-width:var(--shell-max);margin-inline:auto;padding-inline:var(--gutter)}
+.shell-wide{width:100%;max-width:1680px;margin-inline:auto;padding-inline:var(--gutter)}
+.band{padding-block:clamp(3rem,7vw,6rem)}
+.deferred{content-visibility:auto;contain-intrinsic-size:auto 700px}
+[hidden]{display:none!important}
+
+/* ==========================================================================
+   NAVEGACION UTILITARIA — 44px
+   ========================================================================== */
+.utility-nav{position:sticky;top:0;z-index:60;height:var(--nav-height);background:rgb(14 14 14 / .78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--color-keyline)}
+.utility-inner{display:flex;height:100%;align-items:center;gap:.75rem}
+.brand{display:flex;align-items:center;gap:.625rem;flex:none;transition:opacity var(--dur-1) var(--ease-out-expo)}
+.brand:hover{opacity:.8}
+.brand-mark{font-family:var(--font-display);font-size:15px;line-height:1;font-weight:600;letter-spacing:-.022em}
+.brand-sep{width:1px;height:12px;background:var(--color-steel)}
+.nav-links{display:none;align-items:center;gap:.125rem}
+.nav-link{position:relative;display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:9999px;font-size:var(--text-meta);letter-spacing:-.003em;color:var(--color-ash);transition:color var(--dur-1) var(--ease-out-expo),background-color var(--dur-1) var(--ease-out-expo)}
+.nav-link:hover{color:var(--color-porcelain);background:rgb(255 255 255 / .08)}
+.nav-link[aria-current="page"]{color:var(--color-porcelain)}
+.nav-link[aria-current="page"]::after{content:"";position:absolute;left:50%;bottom:-9px;width:4px;height:4px;border-radius:9999px;background:var(--color-porcelain);transform:translateX(-50%)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:.5rem}
+.clock{display:none;align-items:center;gap:.25rem;font-size:var(--text-micro);letter-spacing:.06em;color:var(--color-ash);font-variant-numeric:tabular-nums}
+.menu-toggle{display:flex;width:44px;height:44px;align-items:center;justify-content:center;border-radius:9999px;color:var(--color-porcelain);transition:background-color var(--dur-1) var(--ease-out-expo)}
+.menu-toggle:hover{background:rgb(255 255 255 / .08)}
+.menu-panel{position:absolute;inset-inline:0;top:100%;z-index:55;background:rgb(14 14 14 / .96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--color-keyline)}
+.menu-panel a{display:flex;height:44px;align-items:center;justify-content:space-between;padding-inline:var(--gutter);transition:background-color var(--dur-1) var(--ease-out-expo)}
+.menu-panel a:hover{background:rgb(255 255 255 / .05)}
+
+/* ==========================================================================
+   TICKER
+   ========================================================================== */
+.ticker{height:var(--ticker-height);background:var(--color-graphite);border-bottom:1px solid var(--color-keyline);overflow:hidden}
+.ticker-inner{display:flex;height:100%;align-items:center;overflow-x:auto;scrollbar-width:none}
+.ticker-inner::-webkit-scrollbar{display:none}
+.ticker-item{display:inline-flex;height:100%;align-items:center;gap:6px;padding-inline:14px;border-right:1px solid var(--color-keyline);font-size:var(--text-micro);font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.ticker-item:last-child{border-right:none}
+.ticker-value{color:var(--color-porcelain)}
+.ticker-dim{color:var(--color-ash)}
+.ticker-copper{color:var(--color-copper-new)}
+.ticker-clock{margin-left:auto;font-variant-numeric:tabular-nums}
+
+/* ==========================================================================
+   TIPOGRAFIA Y SUPERFICIES
+   ========================================================================== */
+.text-hero{font-family:var(--font-display);font-size:var(--text-hero);line-height:.92;font-weight:600;letter-spacing:-.015em}
+.text-display{font-family:var(--font-display);font-size:var(--text-display);line-height:1.03;font-weight:600;letter-spacing:-.012em}
+.text-title{font-family:var(--font-display);font-size:var(--text-title);line-height:1.15;font-weight:600}
+.text-lead{font-size:var(--text-lead);line-height:1.4;letter-spacing:-.008em;color:var(--color-ash)}
+.text-body{font-size:var(--text-body);line-height:1.47}
+.text-meta{font-size:var(--text-meta);line-height:1.35;color:var(--color-ash)}
+.text-micro{font-size:var(--text-micro);line-height:1.2;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ash)}
+.label-micro{font-size:var(--text-micro);font-weight:500;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ash)}
+.label-copper{font-size:var(--text-micro);font-weight:600;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--color-copper-new)}
+.label-blood{font-size:var(--text-micro);font-weight:600;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:var(--color-blood)}
+.tnum{font-variant-numeric:tabular-nums}
+
+.panel{background:var(--color-graphite);border:1px solid var(--color-keyline);border-radius:var(--radius-3xl)}
+.panel-carbon{background-image:linear-gradient(#1d1d1d,#000000 288px);border:1px solid var(--color-keyline);border-radius:var(--radius-3xl)}
+.panel-inner{border-radius:var(--radius-inner);border:1px solid var(--color-keyline);background:rgb(14 14 14 / .55)}
+.media-frame{position:relative;overflow:hidden;border-radius:var(--radius-3xl);background:var(--color-obsidian);border:1px solid var(--color-keyline)}
+.measure{display:flex;flex-direction:column;gap:6px;padding:18px 20px;border-radius:var(--radius-inner);background:rgb(14 14 14 / .55);border:1px solid var(--color-keyline)}
+.measure-value{font-family:var(--font-display);font-size:clamp(1.5rem,2.4vw,2rem);line-height:1;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.measure-unit{font-size:var(--text-micro);letter-spacing:.04em;text-transform:uppercase;color:var(--color-slate)}
+
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:9999px;background:rgb(14 14 14 / .78);backdrop-filter:saturate(140%) blur(8px);-webkit-backdrop-filter:saturate(140%) blur(8px);border:1px solid var(--color-keyline);font-size:var(--text-micro);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-porcelain);white-space:nowrap}
+.badge-muted{color:var(--color-ash)}
+.badge-copper{color:var(--color-copper-new);border-color:rgb(182 68 0 / .35)}
+.live-dot{width:6px;height:6px;border-radius:9999px;background:var(--color-porcelain);flex:none}
+.badge-live .live-dot{animation:pulse 2.1s var(--ease-in-out) infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.78)}}
+
+.pill{display:inline-flex;height:44px;align-items:center;justify-content:center;gap:8px;padding-inline:22px;border-radius:var(--radius-pill);font-size:var(--text-body);font-weight:500;letter-spacing:-.016em;white-space:nowrap;transition:background-color var(--dur-1) var(--ease-out-expo),color var(--dur-1) var(--ease-out-expo),border-color var(--dur-1) var(--ease-out-expo)}
+.pill:active{transform:scale(.975)}
+.pill-primary{background:var(--color-apple-blue);color:#fff}
+.pill-primary:hover{background:var(--color-apple-blue-hover)}
+.pill-secondary{background:rgb(255 255 255 / .08);border:1px solid var(--color-keyline);color:var(--color-porcelain)}
+.pill-secondary:hover{background:rgb(255 255 255 / .14);border-color:var(--color-keyline-strong)}
+.pill-sm{height:34px;padding-inline:16px;font-size:var(--text-meta);border-radius:var(--radius-nav)}
+.pill-danger{height:34px;padding-inline:16px;font-size:var(--text-meta);border-radius:var(--radius-nav);border:1px solid rgb(220 38 38 / .4);background:rgb(220 38 38 / .12);color:var(--color-blood)}
+.pill-danger:hover{background:rgb(220 38 38 / .2)}
+.link-more{display:inline-flex;align-items:center;gap:5px;color:var(--color-apple-blue);font-size:var(--text-body);letter-spacing:-.016em;transition:gap var(--dur-1) var(--ease-out-expo)}
+.link-more:hover{gap:9px}
+
+.filter-chip{display:inline-flex;height:34px;align-items:center;gap:7px;padding-inline:14px;border-radius:var(--radius-nav);border:1px solid var(--color-keyline);color:var(--color-ash);font-size:var(--text-meta);transition:color var(--dur-1) var(--ease-out-expo),background-color var(--dur-1) var(--ease-out-expo),border-color var(--dur-1) var(--ease-out-expo)}
+.filter-chip:hover{color:var(--color-porcelain);border-color:var(--color-keyline-strong)}
+.filter-chip[aria-pressed="true"],.filter-chip[aria-selected="true"]{background:var(--color-porcelain);border-color:var(--color-porcelain);color:var(--color-obsidian)}
+.filter-chip-count{font-variant-numeric:tabular-nums;opacity:.6}
+
+/* ==========================================================================
+   CAMPOS
+   ========================================================================== */
+.field-label{display:block;margin-bottom:8px;font-size:var(--text-micro);font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-ash)}
+.field{display:flex;width:100%;min-height:40px;padding:9px 14px;border-radius:var(--radius-field);border:1px solid var(--color-slate);background:rgb(0 0 0 / .55);color:var(--color-porcelain);font-size:var(--text-meta);letter-spacing:-.003em;transition:border-color var(--dur-1) var(--ease-out-expo)}
+.field::placeholder{color:var(--color-steel)}
+.field:hover:not(:disabled){border-color:var(--color-ash)}
+.field:focus-visible{border-color:var(--color-porcelain);outline:2px solid var(--color-apple-blue);outline-offset:2px}
+.field[aria-invalid="true"],.field.field-invalid{border-color:var(--color-blood)}
+textarea.field{resize:vertical;font-family:var(--font-mono);line-height:1.55}
+select.field{appearance:none;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--color-ash) 50%),linear-gradient(135deg,var(--color-ash) 50%,transparent 50%);background-position:right 16px center,right 11px center;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.field-grid{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:640px){.field-grid-2{grid-template-columns:repeat(2,1fr)}.field-grid-3{grid-template-columns:repeat(3,1fr)}.field-grid-4{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.field-grid-4{grid-template-columns:repeat(4,1fr)}}
+
+/* ==========================================================================
+   TARJETAS DE CANAL
+   ========================================================================== */
+.tile{display:flex;flex-direction:column;height:100%;overflow:hidden;border-radius:var(--radius-3xl);background:var(--color-graphite);border:1px solid var(--color-keyline);text-align:left;width:100%;transition:background-color var(--dur-2) var(--ease-out-expo),border-color var(--dur-2) var(--ease-out-expo)}
+.tile:hover{background:var(--color-carbon);border-color:var(--color-keyline-strong)}
+.tile[data-active="true"]{border-color:var(--color-porcelain)}
+.tile-media{position:relative;aspect-ratio:16/9;overflow:hidden;background:#000}
+.tile-media svg{transition:transform var(--dur-3) var(--ease-out-expo)}
+.tile:hover .tile-media svg{transform:scale(1.035)}
+
+/* ==========================================================================
+   MEDIDOR DE DIFICULTAD
+   ========================================================================== */
+.difficulty-meter{display:inline-flex;gap:3px}
+.difficulty-segment{width:18px;height:3px;border-radius:9999px;background:var(--color-steel)}
+.difficulty-segment[data-on="true"]{background:var(--color-porcelain)}
+
+/* ==========================================================================
+   TERMINAL Y PIXELADO
+   ========================================================================== */
+.terminal{font-family:var(--font-mono);font-size:var(--text-meta);line-height:1.6;background:var(--color-graphite);border:1px solid var(--color-keyline);border-radius:var(--radius-3xl)}
+.terminal-line{display:block;color:var(--color-ash)}
+.terminal-time{color:var(--color-steel);font-variant-numeric:tabular-nums}
+.pixelated{position:relative;filter:blur(4px);opacity:.72;user-select:none;pointer-events:none}
+.pixelated::after{content:"";position:absolute;inset:-4px;pointer-events:none;background-image:repeating-linear-gradient(0deg,#000 0 2px,rgb(0 0 0 / 0) 2px 4px),repeating-linear-gradient(90deg,#000 0 2px,rgb(0 0 0 / 0) 2px 4px)}
+
+/* ==========================================================================
+   Goteo de sangre en los margenes
+   ========================================================================== */
+#blood{position:fixed;inset:0;z-index:0;pointer-events:none}
+#blood[hidden]{display:none!important}
+
+/* ==========================================================================
+   REVELADO AL HACER SCROLL
+   ========================================================================== */
+.reveal{opacity:1;transform:none}
+.js .reveal{opacity:0;transform:translate3d(0,20px,0);transition:opacity var(--dur-3) var(--ease-out-expo),transform var(--dur-3) var(--ease-out-expo);transition-delay:var(--reveal-delay,0ms)}
+.js .reveal[data-visible="true"]{opacity:1;transform:none}
+
+/* ==========================================================================
+   UTILIDADES
+   ========================================================================== */
+.grid-auto{display:grid;gap:1rem;grid-template-columns:1fr}
+@media (min-width:640px){.grid-auto-2{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1024px){.grid-auto-3{grid-template-columns:repeat(3,1fr)}.grid-auto-4{grid-template-columns:repeat(4,1fr)}}
+.stack{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.divider{border-top:1px solid var(--color-keyline)}
+.stack-4{gap:1rem}.stack-6{gap:1.5rem}.stack-8{gap:2rem}.stack-12{gap:3rem}
+.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mt-10{margin-top:2.5rem}.mt-12{margin-top:3rem}
+.mb-4{margin-bottom:1rem}
+.gap-x-3{gap:.75rem}
+.max-w-52ch{max-width:52ch}.max-w-62ch{max-width:62ch}.max-w-72ch{max-width:72ch}
+.grow{flex:1 1 auto;min-width:0}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dashed{border-top:1px dashed var(--color-keyline)}
+.site-footer{border-top:1px solid var(--color-keyline);background:var(--color-graphite)}
+.alert-critical{position:relative;overflow:hidden;border-radius:var(--radius-inner);border:1px solid rgb(220 38 38 / .32);background:var(--color-blood-dim)}
+.notice{border-radius:var(--radius-inner);border:1px solid var(--color-keyline);background:rgb(14 14 14 / .5);padding:1.25rem}
+
+/* ==========================================================================
+   CORTES DE MOVIMIENTO
+   El script de la cabecera ya decidió antes del primer pintado; estas reglas
+   son el respaldo por si el JavaScript no llegara a ejecutarse.
+   ========================================================================== */
+@media (max-width:767px){
+  .nav-link{padding-inline:8px}
+  .filter-chip,.pill-sm,.pill-danger{height:40px;padding-inline:16px}
+  .js .reveal{transform:translate3d(0,10px,0);transition-duration:320ms;transition-delay:0ms}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .js .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+
+<body class="js">
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<!-- ATMOSFERA: goteo de sangre. El script lo apaga por debajo de 768px. -->
+<canvas id="blood" aria-hidden="true" hidden></canvas>
+
+<!-- ===================== NAVEGACION UTILITARIA ===================== -->
+<header class="utility-nav">
+  <div class="shell-wide utility-inner">
+    <a class="brand" href="#/">
+      <span class="brand-mark">VAAK OUTBREAK</span>
+      <span class="brand-sep"></span>
+      <span class="label-micro" id="brand-season">Temporada 01</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Secciones">
+      <a class="nav-link" href="#/" data-route="hub">En directo</a>
+      <a class="nav-link" href="#/fases" data-route="fases">Fases</a>
+      <a class="nav-link" href="#/lore" data-route="lore">Lore</a>
+      <a class="nav-link" href="#/admin" data-route="admin">Centro de Control</a>
+    </nav>
+
+    <div class="nav-right">
+      <span class="badge badge-live"><span class="live-dot"></span>En directo</span>
+      <time class="clock tnum" id="clock">--:--:-- UTC</time>
+      <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel" aria-label="Abrir menú">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="menu-panel" hidden>
+    <nav aria-label="Secciones">
+      <a href="#/" data-route="hub">En directo <span class="text-micro">01</span></a>
+      <a href="#/fases" data-route="fases">Fases <span class="text-micro">02</span></a>
+      <a href="#/lore" data-route="lore">Lore <span class="text-micro">03</span></a>
+      <a href="#/admin" data-route="admin">Centro de Control <span class="text-micro">04</span></a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== TICKER ===================== -->
+<div class="ticker" role="region" aria-label="Ticker del evento">
+  <div class="shell-wide ticker-inner" id="ticker"></div>
+</div>
+
+<main id="contenido">
+  <section id="view-hub" data-view="hub" hidden></section>
+  <section id="view-fases" data-view="fases" hidden></section>
+  <section id="view-lore" data-view="lore" hidden></section>
+  <section id="view-admin" data-view="admin" hidden></section>
+</main>
+
+<footer class="site-footer">
+  <div class="shell-wide">
+    <div class="stack stack-6" style="padding-block:2.5rem 1.5rem">
+      <p class="label-copper" id="footer-class">CLASIFICADO</p>
+      <p class="text-meta" id="footer-meta"></p>
+      <p class="text-micro" style="color:var(--color-steel)">Vaak OutBreak · archivo único, sin dependencias</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   0. DECISIÓN DE MOVIMIENTO
+   Tiene que ocurrir antes del primer pintado: si espera al final del body,
+   el navegador ya ha pintado las capas de fondo y se ve el salto.
+   ========================================================================== */
+(function motionBoot(){
+  try{
+    var narrow = window.innerWidth < 768;
+    var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.__vaakLowPower = narrow || calm;
+    document.documentElement.dataset.motion = window.__vaakLowPower ? "reduced" : "full";
+  }catch(e){ window.__vaakLowPower = true; }
+})();
+</script>
+
+<script>
+"use strict";
+/* ==========================================================================
+   Vaak OutBreak — archivo único
+   Datos en localStorage, router por hash, admin en el cliente y goteo de
+   sangre en canvas. Sin dependencias, sin build.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. FORMATO — determinista, sin depender del locale del navegador
+   ========================================================================== */
+var MONTHS = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var WEEKDAYS = ["domingo","lunes","martes","miercoles","jueves","viernes","sabado"];
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function int(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
+function compact(n){
+  var a = Math.abs(n);
+  if (a >= 1e6) return (n/1e6).toFixed(2).replace(".",",") + " M";
+  if (a >= 1e4) return (n/1e3).toFixed(1).replace(".",",") + " k";
+  if (a >= 1e3) return (n/1e3).toFixed(2).replace(".",",") + " k";
+  return int(n);
+}
+function clamp(v,min,max){ return Math.min(max,Math.max(min,v)); }
+function utcClock(input){ var d = new Date(input); return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds()); }
+function utcClockShort(input){ var d = new Date(input); return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes()); }
+function utcStamp(input){ var d = new Date(input); return pad(d.getUTCDate())+" "+MONTHS[d.getUTCMonth()]+" · "+utcClockShort(d)+" UTC"; }
+function shortDate(input){ var d = new Date(input); return pad(d.getUTCDate())+" "+MONTHS[d.getUTCMonth()]+" "+d.getUTCFullYear(); }
+function longDate(input){ var d = new Date(input); return WEEKDAYS[d.getUTCDay()]+" "+d.getUTCDate()+" de "+MONTHS[d.getUTCMonth()]+" de "+d.getUTCFullYear(); }
+function toLocalInput(iso){
+  var d = new Date(iso);
+  return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+}
+function countdown(target, now){
+  var delta = new Date(target).getTime() - now;
+  if (delta <= 0) return "disponible";
+  var days = Math.floor(delta/86400000);
+  var hours = Math.floor((delta%86400000)/3600000);
+  var mins = Math.floor((delta%3600000)/60000);
+  if (days > 0) return days+" d "+pad(hours)+" h";
+  if (hours > 0) return hours+" h "+pad(mins)+" min";
+  return mins+" min";
+}
+
+/* ==========================================================================
+   2. DATOS DE ARRANQUE
+   Contenido de ficción. Sustituir antes de publicar de verdad.
+   ========================================================================== */
+var DEFAULT_DATA = {
+  event: {
+    title: "Vaak OutBreak",
+    season: "Temporada 01",
+    subtitle: "Catorce personas selladas bajo tierra con un colapso que no ha parado de crecer.",
+    location: "VAAK-07 · Sistema Kárstico Norte",
+    startedAt: "2026-09-07T20:00:00Z",
+    endsAt: "2026-10-12T20:00:00Z",
+    totalDays: 35,
+    cumulativeViewers: 1284630,
+    classification: "CLASIFICADO · NIVEL 5",
+    delaySeconds: 90,
+    highlights: [
+      { id:"h1", time:"2026-10-03T18:10:00Z", label:"Revisión de esclusa", detail:"La esclusa C-04 vuelve a abrir tras 41 horas de cierre continuo." },
+      { id:"h2", time:"2026-10-03T12:40:00Z", label:"Medición de dioxindano", detail:"El colector de retorno da 19,4 % en el nivel 3. El umbral de protocolo es 19 %." },
+      { id:"h3", time:"2026-10-02T21:05:00Z", label:"Corte de corriente", detail:"Cuarenta minutos a oscuras. El protocolo obliga a esperar el relevo antes de moverse." },
+      { id:"h4", time:"2026-10-02T07:30:00Z", label:"Recuento de filtros", detail:"El almacén de filtros marca 312 y el papel dice 330. Caso abierto en el comité." },
+      { id:"h5", time:"2026-10-01T14:15:00Z", label:"Hito de temporada", detail:"La entrada acumulada supera el millón doscientos mil espectadores únicos." }
+    ]
+  },
+  streamers: [
+    { id:"nadia-quiroz", name:"Nadia Quiróz", handle:"@nadiaquiroz", platform:"kick", role:"Jefa de protocolo", team:"Turno A", seat:1, status:"live", statusNote:"Al mando. Turno de vigilancia de 22:00 a 06:00 en la sala de aire.", camera:"Cámara de casco · canal principal", viewers:48210, total:512430, embed:"https://player.kick.com/{channel}", channel:"nadiaquiroz", watch:"https://kick.com/nadiaquiroz", chatMode:"external", chat:"https://kick.com/nadiaquiroz" },
+    { id:"tomas-vidal", name:"Tomás Vidal", handle:"@tvidal", platform:"youtube", role:"Ingeniero de aire", team:"Turno B", seat:2, status:"live", statusNote:"Reajustando el colector de retorno. Señal intermitente en el nivel 3.", camera:"Cámara de pecho · canal secundario", viewers:21340, total:288910, embed:"https://www.youtube-nocookie.com/embed/live_stream?channel={channel}&autoplay=1&rel=0", channel:"UCvaakTomasVidal", watch:"https://www.youtube.com/", chatMode:"embed", chat:"https://www.youtube-nocookie.com/embed/live_chat?channel=UCvaakTomasVidal&autoplay=1" },
+    { id:"ines-aranda", name:"Inés Aranda", handle:"@inesaranda", platform:"twitch", role:"Médica de la cuadrilla", team:"Nivel 0", seat:3, status:"live", statusNote:"Guardando el inventario del puesto médico. Turno doblado por los tres del nivel 2.", camera:"Cámara fija · puesto médico 02", viewers:17980, total:203770, embed:"https://player.twitch.tv/?channel={channel}&parent={host}&autoplay=false", channel:"inesaranda", watch:"https://twitch.tv/inesaranda", chatMode:"external", chat:"https://twitch.tv/inesaranda" },
+    { id:"kai-lindqvist", name:"Kai Lindqvist", handle:"@kailind", platform:"kick", role:"Técnico de esclusas", team:"Nivel 0", seat:4, status:"live", statusNote:"Calibrando el cierre C-04. Batería de la linterna al 40 por ciento.", camera:"Cámara fija · vestíbulo de esclusas", viewers:12440, total:141260, embed:"https://player.kick.com/{channel}", channel:"kailind", watch:"https://kick.com/kailind", chatMode:"external", chat:"https://kick.com/kailind" },
+    { id:"bruno-salcedo", name:"Bruno Salcedo", handle:"@brunosalcedo", platform:"twitch", role:"Cartógrafo de galerías", team:"Columna 1", seat:5, status:"live", statusNote:"Trazando el ramal nuevo que nadie ha visto en siete años.", camera:"Cámara de mano · cartografía", viewers:9820, total:118530, embed:"https://player.twitch.tv/?channel={channel}&parent={host}&autoplay=false", channel:"brunosalcedo", watch:"https://twitch.tv/brunosalcedo", chatMode:"external", chat:"https://twitch.tv/brunosalcedo" },
+    { id:"farida-okonkwo", name:"Farida Okonkwo", handle:"@faridaok", platform:"youtube", role:"Custodia de filtros", team:"Nivel 0", seat:6, status:"live", statusNote:"Recuento semanal de filtros activos. La cifra no cuadra.", camera:"Cámara fija · almacén de filtros", viewers:8730, total:96420, embed:"https://www.youtube-nocookie.com/embed/live_stream?channel={channel}&autoplay=1&rel=0", channel:"UCvaakFaridaOk", watch:"https://www.youtube.com/", chatMode:"embed", chat:"https://www.youtube-nocookie.com/embed/live_chat?channel=UCvaakFaridaOk&autoplay=1" },
+    { id:"mateo-ruiz", name:"Mateo Ruiz", handle:"@mateoruiz", platform:"kick", role:"Explorador de nivel 3", team:"Columna 3", seat:7, status:"live", statusNote:"Descenso al ramal inundado. Última señal hace 11 minutos.", camera:"Cámara de casco · móvil", viewers:7430, total:88190, embed:"https://player.kick.com/{channel}", channel:"mateoruiz", watch:"https://kick.com/mateoruiz", chatMode:"external", chat:"https://kick.com/mateoruiz" },
+    { id:"sasha-petrov", name:"Sasha Petrov", handle:"@sashap", platform:"twitch", role:"Bióloga de contención", team:"Columna 2", seat:8, status:"live", statusNote:"Tomando muestras del borde del colector. Doce metros, sin acompañante.", camera:"Cámara de casco · móvil", viewers:6110, total:74260, embed:"https://player.twitch.tv/?channel={channel}&parent={host}&autoplay=false", channel:"sashap", watch:"https://twitch.tv/sashap", chatMode:"external", chat:"https://twitch.tv/sashap" },
+    { id:"lucia-fernandez", name:"Lucía Fernández", handle:"@luciaf", platform:"youtube", role:"Cocina de campaña", team:"Nivel 0", seat:9, status:"live", statusNote:"Primer cocido con la reserva de filtros quemados. Sexta hora de turno.", camera:"Cámara fija · cocina central", viewers:5480, total:69310, embed:"https://www.youtube-nocookie.com/embed/live_stream?channel={channel}&autoplay=1&rel=0", channel:"UCvaakLuciaFer", watch:"https://www.youtube.com/", chatMode:"embed", chat:"https://www.youtube-nocookie.com/embed/live_chat?channel=UCvaakLuciaFer&autoplay=1" },
+    { id:"anders-holm", name:"Anders Holm", handle:"@andersholm", platform:"kick", role:"Explorador de nivel 3", team:"Columna 3", seat:10, status:"offline", statusNote:"Cuarenta y una horas de aislamiento en la antecámara. Cámara cerrada por protocolo.", camera:"Cámara de casco · nivel 3", viewers:0, total:104210, embed:"https://player.kick.com/{channel}", channel:"andersholm", watch:"https://kick.com/andersholm", chatMode:"external", chat:"https://kick.com/andersholm" },
+    { id:"june-park", name:"June Park", handle:"@junepark", platform:"twitch", role:"Cartógrafa de galerías", team:"Columna 1", seat:11, status:"offline", statusNote:"Batería agotada en el equipo de mapeo. Regreso al nivel 0.", camera:"Cámara de mano · cartografía", viewers:0, total:61880, embed:"https://player.twitch.tv/?channel={channel}&parent={host}&autoplay=false", channel:"junepark", watch:"https://twitch.tv/junepark", chatMode:"external", chat:"https://twitch.tv/junepark" },
+    { id:"ruben-diaz", name:"Rubén Díaz", handle:"@rubend", platform:"youtube", role:"Cocina de campaña", team:"Turno B", seat:12, status:"eliminated", statusNote:"Retirado el día 18 por intoxicación por esporas. Fuera de cuadrilla.", camera:"Cámara fija · cocina central", viewers:0, total:57340, embed:"https://www.youtube-nocookie.com/embed/live_stream?channel={channel}&autoplay=1&rel=0", channel:"UCvaakRubenDia", watch:"https://www.youtube.com/", chatMode:"embed", chat:"https://www.youtube-nocookie.com/embed/live_chat?channel=UCvaakRubenDia&autoplay=1" },
+    { id:"hana-kovac", name:"Hana Kovač", handle:"@hanak", platform:"twitch", role:"Médica de la cuadrilla", team:"Columna 2", seat:13, status:"eliminated", statusNote:"Retirada el día 22. Traslado a superficie autorizado por protocolo médico.", camera:"Cámara de casco · nivel 2", viewers:0, total:83910, embed:"https://player.twitch.tv/?channel={channel}&parent={host}&autoplay=false", channel:"hanak", watch:"https://twitch.tv/hanak", chatMode:"external", chat:"https://twitch.tv/hanak" },
+    { id:"omar-benegas", name:"Omar Benegas", handle:"@omarbenegas", platform:"kick", role:"Explorador de nivel 2", team:"Columna 2", seat:14, status:"eliminated", statusNote:"Fuera de cuadrilla el día 24. Continúa como comentario desde el campamento base.", camera:"Cámara de casco · nivel 2", viewers:0, total:91240, embed:"https://player.kick.com/{channel}", channel:"omarbenegas", watch:"https://kick.com/omarbenegas", chatMode:"external", chat:"https://kick.com/omarbenegas" }
+  ],
+  phases: [
+    { id:"semana-1", week:1, dayRange:[1,7], startsAt:"2026-09-07T20:00:00Z", endsAt:"2026-09-14T20:00:00Z",
+      title:"El sellado", subtitle:"Cierre de la esclusa, calibración de sensores y la primera semana de aire medido.",
+      summary:"Semana de cierre. Todo el equipo tiene que estar calibrado antes de que la esclusa C-01 quede sellada de forma permanente. Nadie baja del nivel 1 sin acompañante.",
+      difficulty:2,
+      conditions:{ temperature:"18", unit:"°C", tempNote:"Media del nivel 0, con oscilación por el ciclo", wind:"0", daylight:"24 h", oxygen:24, charges:3 },
+      comparedTo:"Punto de partida del sistema. Aquí se mide qué aguanta un cuerpo antes de que el aire, el sueño o el agua empiecen a cobrar.",
+      environment:[
+        { id:"presion-nivel-1", label:"Caída de presión en el nivel 1", severity:"baja", detail:"Entre las 06:00 y las 09:00 la esclusa C-02 pierde 12 milibares. Toda salida se retrasa una hora." },
+        { id:"fugas-sellado", label:"Fugas en el sellado", severity:"media", detail:"El sellado de los marcos de la C-01 exige plataformas de reacondicionado." },
+        { id:"oscilacion-ciclo", label:"Oscilación térmica cada cuatro horas", severity:"baja", detail:"Seis grados entre el ciclo alto y el ciclo bajo. El ciclo alto cambia el cuadrante de turno." }
+      ],
+      creatures:[
+        { id:"musgo-colector", label:"Musgo del borde del colector", severity:"media", detail:"Crece en las juntas del nivel 0, donde condensa. Retiene partículas si la lona del almacén de filtros queda abierta." },
+        { id:"raton-galeria", label:"Ratón de galería", severity:"baja", detail:"Sigue el olor de la cocina central. Se ahuyenta con luz, no con ruido." }
+      ],
+      limits:[
+        { id:"aire-turnos", label:"Un ciclo de aire por turno", severity:"media", detail:"El colector cuenta horas de ciclo de 40 minutos. Al agotar el allotted no hay segunda ronda." },
+        { id:"sin-extraccion", label:"Sin extracción no médica", severity:"alta", detail:"La esclusa de superficie está a once horas de apertura." },
+        { id:"racion-diaria", label:"Ración diaria de 2 100 kcal", severity:"media", detail:"Se descuenta del almacén con cada ración registrada." }
+      ], patches:[] },
+
+    { id:"semana-2", week:2, dayRange:[8,14], startsAt:"2026-09-14T20:00:00Z", endsAt:"2026-09-21T20:00:00Z",
+      title:"El ciclo", subtitle:"El colector de retorno deja de dar el caudal previsto y la primera cuenta que no cuadra.",
+      summary:"El ramal seco se recorre por primera vez. El comité sube la dificultad porque el inventario de filtros deja de cuadrar.",
+      difficulty:3,
+      conditions:{ temperature:"16", unit:"°C", tempNote:"Media del nivel 0 con la toma del colector", wind:"0", daylight:"24 h", oxygen:20, charges:3 },
+      comparedTo:"Contra la semana 1 bajan 4 minutos de aire por persona, cae el caudal del colector un 12 por ciento y entra la primera restricción absoluta sobre el nivel 2.",
+      environment:[
+        { id:"colector-retorno", label:"Colector de retorno al 88 por ciento", severity:"alta", detail:"El caudal cae un 12 por ciento respecto al diseño." },
+        { id:"infiltracion-nivel-2", label:"Infiltración en el nivel 2", severity:"media", detail:"Entrada de agua en el segundo tramo. La ventana segura baja a cuarenta minutos." },
+        { id:"oscuridad-galeria", label:"Oscuridad total en la galería este", severity:"media", detail:"El tramo no tiene iluminación fija." }
+      ],
+      creatures:[
+        { id:"hongo-linterna", label:"Hongo linterna del colector", severity:"alta", detail:"Emite luz azul en el borde del colector. Siguen el haz de la linterna." },
+        { id:"aranea-conducto", label:"Araña de conducto", severity:"baja", detail:"Cierra los conductos de ventilación con telar." }
+      ],
+      limits:[
+        { id:"nivel-2-acceso", label:"Descenso al nivel 2 restringido", severity:"alta", detail:"El único corredor permitido es la escalera de servicio." },
+        { id:"turno-8", label:"Turnos de ocho horas sin sustitución", severity:"media", detail:"Cada participante acumula su turno. Al cuarto día seguido, descanso obligatorio." },
+        { id:"agua-litro", label:"Un litro de agua personal al día", severity:"media", detail:"El resto es para cocina. Purificar un litro lleva 22 minutos." }
+      ], patches:[] },
+
+    { id:"semana-3", week:3, dayRange:[15,21], startsAt:"2026-09-21T20:00:00Z", endsAt:"2026-09-28T20:00:00Z",
+      title:"La ósmosis", subtitle:"Ocho días de reserva baja, intoxicación por esporas en tres personas y el colector cediendo por dentro.",
+      summary:"El tramo más largo sin mitigación. La reserva de filtros baja a dos rondas diarias y las guardias nocturnas pasan a ser dobles.",
+      difficulty:4,
+      conditions:{ temperature:"14", unit:"°C", tempNote:"Media medida en el borde del colector", wind:"0", daylight:"24 h", oxygen:18, charges:2 },
+      comparedTo:"El nivel 3 deja de ser transitable, los filtros pasan de 3 rondas a 2 y la colonia deja de responder a la luz.",
+      environment:[
+        { id:"colector-esporas", label:"El colector produce esporas", severity:"extrema", detail:"Aparición de conidios en el aire de retorno. El nivel 3 queda inutilizable." },
+        { id:"esporas-intoxicacion", label:"Intoxicación por esporas recurrente", severity:"alta", detail:"Tres participantes con saturación por encima del 15 por ciento." },
+        { id:"corrosion-juntas", label:"Corrosión del biocida en las juntas", severity:"media", detail:"Entre el 70 y el 90 por ciento de eficacia por junta." }
+      ],
+      creatures:[
+        { id:"hongo-adaptado", label:"Hongo adaptado a la luz artificial", severity:"extrema", detail:"La colonia aguanta la luz UV veinte minutos. Hay que alternar los focos." },
+        { id:"raton-colonia", label:"Ratón de la colonia", severity:"baja", detail:"Marcan dónde hay restos de comida." }
+      ],
+      limits:[
+        { id:"filtros-dos", label:"Dos rondas de filtros al día", severity:"alta", detail:"La cocina y la filtración compiten por las mismas dos rondas." },
+        { id:"movilidad-cuatro", label:"Ventana de movilidad de cuatro horas", severity:"media", detail:"Fuera de ese tramo toda salida se cancela." },
+        { id:"turno-14", label:"Prohibido el turno de catorce horas", severity:"alta", detail:"Corte obligatorio al decimocuarto día de acumulado." }
+      ],
+      patches:[
+        { id:"patch-2026-09-23", code:"P-03A", author:"Comité de protocolo", appliedAt:"2026-09-23T08:20:00Z", target:"conditions", severity:"alta",
+          summary:"Oxígeno reducido a 15 minutos", detail:"La botella de la columna sur salió con una fisura. El comité baja la provisión personal de 18 a 15 minutos.",
+          reason:"Incidencia de material documentada por el técnico de comunicaciones." },
+        { id:"patch-2026-09-25", code:"P-03B", author:"Comité médico", appliedAt:"2026-09-25T11:00:00Z", target:"environment", severity:"extrema",
+          summary:"Lago por debajo de 10 cm", detail:"El espesor mínimo baja de 9 a 7 cm. El paso norte queda marcado como no transitable.",
+          reason:"El hielo se ha adelgazado 2 cm en 48 horas. Abrir con 7 cm habría sido una inundación." }
+      ] },
+
+    { id:"semana-4", week:4, dayRange:[22,28], startsAt:"2026-09-28T20:00:00Z", endsAt:"2026-10-05T20:00:00Z",
+      title:"La cuadrícula", subtitle:"La ventana de la esclusa de superficie abre 48 horas antes del cierre.",
+      summary:"Fase activa. El sistema sube al máximo porque solo queda una ventana de apertura y los que no la crucen quedan bajo tierra.",
+      difficulty:5,
+      conditions:{ temperature:"12", unit:"°C", tempNote:"Mínima medida en el borde del colector", wind:"0", daylight:"24 h", oxygen:16, charges:2 },
+      comparedTo:"No introduce una limitación nueva: consolida todas. El aire limpio baja a 16 minutos y la ventana de apertura tiene fecha de cierre.",
+      environment:[
+        { id:"esclusa-superficie", label:"Ventana de la esclusa de superficie", severity:"extrema", detail:"Abre 48 horas antes del cierre y luego se sella. Una vez cerrada, no hay segunda salida." },
+        { id:"baja-colector", label:"Baja del colector de retorno", severity:"extrema", detail:"El caudal cae al 74 por ciento." },
+        { id:"fracturas-galeria", label:"Fracturas nuevas en la galería sur", severity:"alta", detail:"La infiltración abre fracturas nuevas cada doce horas." }
+      ],
+      creatures:[
+        { id:"colonia-relevo", label:"Colonia en acecho limpio", severity:"extrema", detail:"Han aprendido a esperar el relevo de guardia. Atacan entre turnos." },
+        { id:"tejido-conducto", label:"Tejido en el conducto principal", severity:"alta", detail:"Vuelve al punto de aire cada tercer día." }
+      ],
+      limits:[
+        { id:"sin-retirada", label:"Sin retirada voluntaria", severity:"extrema", detail:"Desde el día 22 nadie abandona por decisión propia." },
+        { id:"aire-16", label:"16 minutos de aire limpio por persona", severity:"alta", detail:"Cubren 38 minutos de esfuerzo o 3 horas de reposo." },
+        { id:"una-apertura", label:"Una única ventana de apertura", severity:"extrema", detail:"Abre el día 26 a las 06:00 y cierra el día 28 a las 06:00." }
+      ],
+      patches:[
+        { id:"patch-2026-10-02", code:"P-04A", author:"Comité de protocolo", appliedAt:"2026-10-02T19:40:00Z", target:"conditions", severity:"alta",
+          summary:"Umbral de dioxindano fijado en 19,5 %", detail:"Se fija el umbral de retirada obligatoria en 19,5 por ciento sostenido durante diez minutos.",
+          reason:"Lectura de 19,4 por ciento en el nivel 3 el 2 de octubre con el sensor portátil." }
+      ] },
+
+    { id:"semana-5", week:5, dayRange:[29,35], startsAt:"2026-10-05T20:00:00Z", endsAt:"2026-10-12T20:00:00Z",
+      title:"La abertura", subtitle:"Siete días finales, cero margen y el cierre del sistema.",
+      summary:"El tramo de cierre. Una sola ronda de filtros diaria obliga a decidir cada noche entre cocina, sellado y señalización.",
+      difficulty:5,
+      conditions:{ temperature:"9", unit:"°C", tempNote:"Estimado para el borde del colector al inicio del ciclo", wind:"0", daylight:"24 h", oxygen:14, charges:1 },
+      comparedTo:"Mantenimiento en 5 con presión acumulada. No ofrece ninguna variable nueva: solo queda sostener lo que ya se está cayendo.",
+      environment:[
+        { id:"corte-enlace", label:"Corte total del enlace con superficie", severity:"extrema", detail:"La red satura el enlace. Las cámaras siguen grabando en local, pero no hay transmisión." },
+        { id:"filtracion-final", label:"Filtración al límite en el ramal sur", severity:"extrema", detail:"7 por ciento de eficacia. El sistema queda partido en dos mitades incomunicables." },
+        { id:"cierre-sistema", label:"Cierre del sistema", severity:"extrema", detail:"Desde el día 33 no se admite ninguna entrada ni salida." }
+      ],
+      creatures:[
+        { id:"colonia-cerrada", label:"Colonia en modo cerrado", severity:"extrema", detail:"Se acercan al perímetro sin rechazo. Dos ya conocen el esquema de guardias." },
+        { id:"aranea-negra", label:"Araña negra", severity:"alta", detail:"Aparece en la marca de huella humana y no retrocede ante la luz." }
+      ],
+      limits:[
+        { id:"filtros-una", label:"Una ronda de filtros al día", severity:"extrema", detail:"Cocina, sellado y señalización se disputan el mismo material." },
+        { id:"movilidad-tres", label:"Un descenso diario de tres horas", severity:"alta", detail:"Fuera de la ventana no hay movimiento en el sistema." },
+        { id:"sin-apoyo", label:"Sin apoyo exterior", severity:"extrema", detail:"El comité mantiene el contacto por si hay que cerrar un participante." }
+      ], patches:[] }
+  ],
+  lore: [
+    { id:"log-001", week:1, title:"Bitácora 001 · Cierre de la C-01", classification:"NIVEL 5 · PERSONAL", author:"Nadia Quiróz", recordedAt:"2026-09-08T05:12:00Z", unlockAt:"2026-09-09T12:00:00Z", signal:"estable",
+      lines:["00:41  El ciclo ha girado a carga baja. Traemos la plataforma de sellado.","02:10  Primeras 38 personas dentro del perímetro. Nadie ha cruzado el borde del colector.","04:55  El aire entra por el suelo, no por el techo. Hay que aislar el nivel 1 antes de la luz.","07:20  Revisión de manos y respiraciones de los catorce. Todos dentro de rango.","11:05  Un ratón de galería ha abierto la lona del almacén de filtros."] },
+    { id:"log-002", week:1, title:"Bitácora 002 · El inventario", classification:"NIVEL 5 · PERSONAL", author:"Farida Okonkwo", recordedAt:"2026-09-13T18:30:00Z", unlockAt:"2026-09-15T12:00:00Z", signal:"estable",
+      lines:["18:30  Recuento semanal. 412 filtros. El registro dice 431.","18:44  La diferencia son 19 filtros. Nadie ha firmado una salida del almacén.","19:02  Reviso el montón de filtros quemados. Alguien ha movido el peso hacia el lado norte.","19:50  Lo dejo anotado y no lo comento por radio."] },
+    { id:"log-003", week:2, title:"Bitácora 003 · El ramal seco", classification:"NIVEL 5 · PERSONAL", author:"Sasha Petrov", recordedAt:"2026-09-18T14:12:00Z", unlockAt:"2026-09-20T12:00:00Z", signal:"estable",
+      lines:["10:20  Salida al ramal seco. El eco del casco devuelve los golpes desde la bifurcación.","12:05  Trece metros hasta la bifurcación, diez más de túnel. Nadie pasa solo.","13:40  El hongo linterna ha seguido el haz. A la luz ya no hace caso.","14:12  Vuelta con seis minutos más de aire en el cilindro."] },
+    { id:"log-004", week:2, title:"Bitácora 004 · Dos focos", classification:"NIVEL 5 · PERSONAL", author:"Kai Lindqvist", recordedAt:"2026-09-20T23:50:00Z", unlockAt:"2026-09-22T12:00:00Z", signal:"degradado",
+      lines:["21:15  La colonia no ha respetado la luz. Se ha quedado a veinte metros del perímetro.","22:00  He encendido el segundo foco. El avance se ha detenido.","22:40  La cámara del ramal sur ha caído. Batería al 12 por ciento.","23:50  Regla nueva para mí: dos focos encendidos, siempre."] },
+    { id:"log-005", week:3, title:"Bitácora 005 · Saturación 15", classification:"NIVEL 5 · PERSONAL", author:"Inés Aranda", recordedAt:"2026-09-25T09:30:00Z", unlockAt:"2026-09-27T12:00:00Z", signal:"crítico",
+      lines:["06:10  Tres participantes por encima del 15 por ciento de saturación.","07:45  Mascarilla de circuito para los tres. El aire filtrado ya no responde.","08:30  Reparto el aire limpio entre los tres. Me quedo con la mitad.","09:30  Si mañana se repite, bajo a dos el volumen de descenso."] },
+    { id:"log-006", week:3, title:"Bitácora 006 · Conidios", classification:"NIVEL 5 · PERSONAL", author:"Bruno Salcedo", recordedAt:"2026-09-27T16:00:00Z", unlockAt:"2026-09-29T12:00:00Z", signal:"estable",
+      lines:["13:20  El aire de retorno trae conidios. Hay que sellar el borde antes del ciclo alto.","14:05  El ramal aguanta, pero el margen se ha movido 30 metros desde ayer.","15:10  Trazo el límite cada seis horas. Nadie usa un mapa de más de medio día.","16:00  Con este caudal, la esclusa no se puede abrir antes del día 26."] },
+    { id:"log-007", week:4, title:"Bitácora 007 · La cuenta", classification:"NIVEL 5 · PERSONAL", author:"Farida Okonkwo", recordedAt:"2026-10-01T07:15:00Z", unlockAt:"2026-10-03T12:00:00Z", signal:"crítico",
+      lines:["06:20  Segundo recuento. El almacén dice 312 y el papel dice 330.","06:48  He revisado las firmas de la semana 2. Nadie cobró esos 18 filtros.","07:02  Rastréo el peso con el sensor de carga. El bulto cambia cada madrugada.","07:15  Lo subo al comité. Si no hay respuesta antes de la apertura, lo asumo yo."] },
+    { id:"log-008", week:4, title:"Bitácora 008 · Relevo de guardia", classification:"NIVEL 5 · RESTRINGIDA", author:"Tomás Vidal", recordedAt:"2026-10-05T02:40:00Z", unlockAt:"2026-10-07T12:00:00Z", signal:"restringido",
+      lines:["01:55  El caudal ha pasado del 74 al 68 por ciento en veinte minutos.","02:20  La colonia esperó el relevo. Estaba fuera del cono de la luz.","02:40  Protocolo de emergencia: si el caudal pasa del 70, todos al nivel 0."] },
+    { id:"log-009", week:5, title:"Bitácora 009 · Una ronda", classification:"NIVEL 5 · RESTRINGIDA", author:"Lucía Fernández", recordedAt:"2026-10-08T20:05:00Z", unlockAt:"2026-10-10T12:00:00Z", signal:"restringido",
+      lines:["19:10  Una sola ronda para todo: cocina, sellado y señalización.","19:35  He elegido cocina. El sellado lo lleva cada uno con su equipo de relevo.","20:05  Mañana no queda para los tres. Hay que decidir antes del ciclo."] },
+    { id:"log-010", week:5, title:"Bitácora 010 · Cierre del sistema", classification:"NIVEL 5 · RESTRINGIDA", author:"Nadia Quiróz", recordedAt:"2026-10-12T18:00:00Z", unlockAt:"2026-10-12T20:00:00Z", signal:"restringido",
+      lines:["17:30  El sistema cierra el día 33. Después de esta línea no entra nadie.","17:50  No hay nada más que repartir. Solo queda contar quién sigue en pie.","18:00  Cierre de la temporada."] }
+  ]
+};
+
+/* ==========================================================================
+   3. ALMACÉN
+   ========================================================================== */
+var STORE_KEY = "vaak.outbreak.data.v1";
+var clone = function(o){ return JSON.parse(JSON.stringify(o)); };
+
+var DB = {
+  data: null,
+  load: function(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.streamers && parsed.phases && parsed.lore && parsed.event) return parsed;
+      }
+    }catch(e){ console.warn("Datos guardados ilegibles, se restauran los de fábrica", e); }
+    return clone(DEFAULT_DATA);
+  },
+  save: function(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(DB.data)); }
+    catch(e){ console.warn("No se pudo guardar en localStorage", e); }
+  },
+  init: function(){ DB.data = DB.load(); DB.save(); },
+  reset: function(){ DB.data = clone(DEFAULT_DATA); DB.save(); }
+};
+
+/* ==========================================================================
+   4. ESTADO DE LA VISTA
+   ========================================================================== */
+var state = {
+  view: "hub",
+  activeId: "nadia-quiroz",
+  playing: false,
+  chatLoaded: false,
+  chatTab: "chat",
+  phaseId: "semana-4",
+  loreFilter: "all",
+  openEntry: null,
+  filterStreamers: "all",
+  adminAuth: false,
+  adminTab: "canales",
+  editId: null,
+  now: Date.now()
+};
+
+/* ==========================================================================
+   5. UTILIDADES DE VISTA
+   ========================================================================== */
+var $ = function(sel, root){ return (root||document).querySelector(sel); };
+var $$ = function(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); };
+
+function esc(value){
+  return String(value === undefined || value === null ? "" : value)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function platformLabel(p){
+  return p === "twitch" ? "Twitch" : p === "youtube" ? "YouTube" : "Kick";
+}
+function statusLabel(s){
+  return s === "live" ? "En directo" : s === "eliminated" ? "Retirado" : "Fuera de línea";
+}
+function statusClass(s){
+  return s === "live" ? "badge-live" : s === "eliminated" ? "badge-copper" : "badge-muted";
+}
+
+/** Placa topográfica generada: no hay imágenes de relleno ni peticiones de red. */
+function plate(seat, dimmed){
+  var ox = 44 + ((seat*37) % 232);
+  var oy = 34 + ((seat*23) % 96);
+  var rot = ((seat*13) % 40) - 20;
+  var curves = "";
+  for (var i = 0; i < 11; i++){
+    curves += '<ellipse cx="'+ox+'" cy="'+oy+'" rx="'+(18+i*26)+'" ry="'+(9+i*12)+'" opacity="'+Math.max(0.16,1-i*0.075).toFixed(2)+'" transform="rotate('+rot+' '+ox+' '+oy+')"/>';
+  }
+  return '<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">'
+    + '<rect width="320" height="180" fill="#000"/>'
+    + '<g fill="none" stroke="#333336" stroke-width="1" opacity="'+(dimmed?0.45:1)+'">'+curves+'</g>'
+    + '<line x1="0" y1="118" x2="320" y2="118" stroke="rgb(40 40 40)" stroke-width="1" opacity="'+(dimmed?0.5:1)+'"/>'
+    + '<line x1="196" y1="0" x2="196" y2="180" stroke="rgb(40 40 40)" stroke-width="1" opacity="'+(dimmed?0.5:1)+'"/>'
+    + '<circle cx="'+ox+'" cy="118" r="2.5" fill="'+(dimmed?"#333336":"#f5f5f7")+'" opacity="'+(dimmed?0.6:0.85)+'"/>'
+    + '</svg>';
+}
+
+function difficultyMeter(value, large){
+  var seg = "";
+  for (var i = 1; i <= 5; i++){
+    seg += '<span class="difficulty-segment" data-on="'+(i <= value)+'"'+(large?' style="width:24px;height:4px"':'')+'></span>';
+  }
+  return '<span class="difficulty-meter" role="img" aria-label="Dificultad '+value+' de 5">'+seg+'</span>';
+}
+
+function activePhase(){
+  var now = state.now;
+  for (var i = 0; i < DB.data.phases.length; i++){
+    var p = DB.data.phases[i];
+    if (now >= Date.parse(p.startsAt) && now < Date.parse(p.endsAt)) return p;
+  }
+  return null;
+}
+
+function phaseState(phase){
+  if (state.now >= Date.parse(phase.endsAt)) return "completed";
+  if (state.now >= Date.parse(phase.startsAt)) return "active";
+  return "upcoming";
+}
+var PHASE_STATE_LABEL = { completed:"Superada", active:"En curso", upcoming:"Proxima" };
+
+function dayIndex(){
+  var start = Date.parse(DB.data.event.startedAt);
+  return clamp(Math.floor((state.now - start) / 86400000) + 1, 1, DB.data.event.totalDays);
+}
+
+function activeStreamer(){
+  for (var i = 0; i < DB.data.streamers.length; i++){
+    if (DB.data.streamers[i].id === state.activeId) return DB.data.streamers[i];
+  }
+  return DB.data.streamers[0];
+}
+
+function fallbackStreamer(){
+  for (var i = 0; i < DB.data.streamers.length; i++){
+    var s = DB.data.streamers[i];
+    if (s.status === "live" && s.id !== state.activeId) return s;
+  }
+  return DB.data.streamers[0];
+}
+
+function tally(){
+  var t = { total:DB.data.streamers.length, live:0, offline:0, eliminated:0, concurrent:0 };
+  DB.data.streamers.forEach(function(s){
+    if (s.status === "live") t.live += 1;
+    else if (s.status === "offline") t.offline += 1;
+    else t.eliminated += 1;
+    t.concurrent += s.viewers || 0;
+  });
+  return t;
+}
+
+function embedUrl(streamer){
+  if (!streamer.embed) return "";
+  return streamer.embed
+    .replace("{channel}", encodeURIComponent(streamer.channel || ""))
+    .replace("{host}", encodeURIComponent(location.hostname || "localhost"));
+}
+
+/* ==========================================================================
+   6. CABECERA Y TICKER
+   ========================================================================== */
+function renderChrome(){
+  var e = DB.data.event;
+  $("#brand-season").textContent = e.season;
+  $("#footer-class").textContent = e.classification;
+  $("#footer-meta").textContent = e.location + " · " + e.season + " · " + e.totalDays + " días · emisión con " + e.delaySeconds + " s de retraso";
+
+  var t = tally();
+  var items = [
+    '<span class="ticker-item"><span class="live-dot"></span>Día ' + dayIndex() + ' de ' + e.totalDays + '</span>',
+    '<span class="ticker-item"><span class="ticker-dim">Fase activa</span><span class="ticker-value">' + esc(activePhase() ? activePhase().title : "Fuera de temporada") + '</span></span>',
+    '<span class="ticker-item"><span class="ticker-dim">Espectadores acumulados</span><span class="ticker-value tnum">' + int(e.cumulativeViewers) + '</span></span>',
+    '<span class="ticker-item"><span class="ticker-dim">En directo</span><span class="ticker-value tnum">' + t.live + ' de ' + t.total + '</span></span>',
+    '<span class="ticker-item" style="display:none" data-wide><span class="ticker-dim">Fuera de línea</span><span class="ticker-value tnum">' + t.offline + '</span></span>',
+    '<span class="ticker-item" style="display:none" data-wide><span class="ticker-dim">Retirados</span><span class="ticker-copper tnum">' + t.eliminated + '</span></span>',
+    '<span class="ticker-item ticker-clock"><span class="ticker-value">' + utcClock(clockNow) + '</span><span class="ticker-dim">UTC</span></span>'
+  ];
+  $("#ticker").innerHTML = items.join("");
+  $$("[data-wide]").forEach(function(node){
+    if (window.innerWidth >= 1024) node.style.display = "";
+  });
+  $("#clock").textContent = utcClock(clockNow) + " UTC";
+}
+
+/* ==========================================================================
+   7. HUB EN DIRECTO
+   ========================================================================== */
+function renderHub(){
+  var s = activeStreamer();
+  var live = s.status === "live";
+  var back = fallbackStreamer();
+  var t = tally();
+  var e = DB.data.event;
+
+  var stage;
+  if (state.playing && live){
+    stage = '<iframe src="'+esc(embedUrl(s))+'" title="Transmisión de '+esc(s.name)+' en '+platformLabel(s.platform)+'" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;inset:0;width:100%;height:100%"></iframe>';
+  } else {
+    var title = live ? s.name + " · " + s.camera : e.title + " · tráiler oficial";
+    var cta = live
+      ? '<button class="pill pill-primary" data-action="play"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5 19 12 7 19.5V4.5Z"/></svg>Reproducir en directo</button>'
+      : '<a class="pill pill-primary" href="'+esc(s.watch)+'" target="_blank" rel="noreferrer">Abrir el canal<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 16 16 8M9.5 8H16v6.5"/></svg></a>';
+    stage =
+      '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;padding:1.5rem;text-align:center">'
+    +   '<div style="position:absolute;inset:0;opacity:.4">'+plate(s.seat, !live)+'</div>'
+    +   '<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:1.25rem">'
+    +     '<p class="label-micro" style="max-width:36ch">'+esc(title)+'</p>'
+    +     cta
+    +     '<p class="text-meta" style="max-width:42ch">'
+    +       (live
+        ? "El player de la plataforma no se carga hasta que pulses reproducir."
+        : "Este canal no está en directo. El escenario muestra el canal archivado y ofrece el de respaldo.")
+    +     '</p>'
+    +   '</div>'
+    + '</div>';
+  }
+
+  var fallbackNotice = "";
+  if (!live && back && back.id !== s.id){
+    fallbackNotice =
+      '<div class="panel-inner mt-3 stack" style="padding:1rem;display:flex;gap:.75rem;align-items:flex-start">'
+    + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="label-blood" style="flex:none;margin-top:2px" aria-hidden="true"><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M8.4 8.4a5 5 0 0 0 0 7.2M15.6 8.4a5 5 0 0 1 0 7.2"/></svg>'
+    + '<div><p class="text-meta" style="color:var(--color-porcelain)">'+esc(s.name)+' está '+statusLabel(s.status).toLowerCase()+'</p>'
+    + '<p class="text-meta mt-2">Mientras tanto puedes ver a '+esc(back.name)+', que sí está en directo.</p></div>'
+    + '<button class="pill pill-sm pill-secondary" data-action="switch" data-id="'+esc(back.id)+'" style="flex:none">Ver a '+esc(back.name.split(" ")[0])+'</button>'
+    + '</div>';
+  }
+
+  var chat;
+  if (state.chatTab === "log"){
+    chat = '<p class="label-micro mb-4">Registro del día</p><ul class="stack stack-4">'
+      + DB.data.event.highlights.map(function(h){
+          return '<li style="display:flex;gap:.75rem"><span style="margin-top:6px;width:6px;height:6px;flex:none;border-radius:9999px;background:var(--color-ash)"></span>'
+            + '<div><p class="text-meta" style="color:var(--color-porcelain)">'+esc(h.label)
+            + ' <span style="color:var(--color-steel)">'+esc(utcStamp(h.time))+'</span></p>'
+            + '<p class="text-meta mt-2">'+esc(h.detail)+'</p></div></li>';
+        }).join("")
+      + '</ul>';
+  } else if (s.chatMode === "embed"){
+    chat = '<p class="label-micro">'+platformLabel(s.platform)+' · '+esc(s.name)+'</p>'
+      + (state.chatLoaded
+        ? '<iframe src="'+esc(s.chat)+'" title="Chat oficial de '+esc(s.name)+'" loading="lazy" style="margin-top:1rem;width:100%;height:420px;border-radius:var(--radius-inner);border:1px solid var(--color-keyline);background:var(--color-carbon)"></iframe>'
+        : '<div class="notice mt-4 stack"><p class="text-meta">El chat oficial se monta bajo demanda. Al cargarlo, '+platformLabel(s.platform)+' recibe una conexión desde este navegador.</p>'
+          + '<button class="pill pill-secondary" data-action="chat-load" style="align-self:flex-start">Cargar el chat</button></div>');
+  } else {
+    chat = '<p class="label-micro">'+platformLabel(s.platform)+' · '+esc(s.name)+'</p>'
+      + '<div class="notice mt-4 stack"><p class="text-meta">'+platformLabel(s.platform)+' no permite incrustar su chat. Se abre en la plataforma, con la sesión que ya tengas iniciada.</p>'
+      + '<a class="pill pill-primary" href="'+esc(s.chat)+'" target="_blank" rel="noreferrer" style="align-self:flex-start">Chat oficial<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 16 16 8M9.5 8H16v6.5"/></svg></a></div>';
+  }
+
+  var filters = [
+    { id:"all", label:"Todos" },
+    { id:"live", label:"En directo" },
+    { id:"offline", label:"Fuera de línea" },
+    { id:"eliminated", label:"Retirados" }
+  ];
+  var visible = state.filterStreamers === "all"
+    ? DB.data.streamers
+    : DB.data.streamers.filter(function(x){ return x.status === state.filterStreamers; });
+
+  var cards = visible.map(function(x){
+    var isActive = x.id === s.id;
+    return '<li><button class="tile" data-action="switch" data-id="'+esc(x.id)+'" data-active="'+isActive+'" aria-pressed="'+isActive+'">'
+      + '<div class="tile-media">'+plate(x.seat, x.status !== "live")
+      + '<div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;padding:.75rem">'
+      + '<span class="badge '+statusClass(x.status)+'"><span class="live-dot" style="'+(x.status === "live" ? "" : "background:currentColor")+'"></span>'+statusLabel(x.status)+'</span>'
+      + (x.status === "live" ? '<span class="badge tnum">'+compact(x.viewers)+'</span>' : '')
+      + '</div></div>'
+      + '<div style="display:flex;flex:1;flex-direction:column;padding:1.25rem">'
+      + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem">'
+      + '<div style="min-width:0"><h3 class="truncate" style="font-size:15px;font-weight:600;letter-spacing:-.011em">'+esc(x.name)+'</h3>'
+      + '<p class="truncate mt-2 text-meta">'+esc(x.role)+' · '+esc(x.team)+'</p></div>'
+      + '<a href="'+esc(x.watch)+'" target="_blank" rel="noreferrer" aria-label="Abrir el canal de '+esc(x.name)+'" style="flex:none;display:flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:9999px;color:var(--color-ash)" onclick="event.stopPropagation()">'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 16 16 8M9.5 8H16v6.5"/></svg></a></div>'
+      + '<p class="mt-3 text-meta" style="color:var(--color-slate);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+esc(x.statusNote)+'</p>'
+      + '<div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-top:1.25rem">'
+      + '<span class="label-micro">'+platformLabel(x.platform)+' · Asiento '+String(x.seat).padStart(2,"0")+'</span>'
+      + (isActive
+        ? '<span class="label-micro" style="color:var(--color-ash)">En el escenario</span>'
+        : '<span class="label-micro" style="color:var(--color-apple-blue)">Ver canal</span>')
+      + '</div></div></button></li>';
+  }).join("");
+
+  $("#view-hub").innerHTML =
+    '<section class="band" style="padding-top:3rem">'
+  + '<div class="shell-wide stack stack-8">'
+  +  '<div style="max-width:62ch">'
+  +    '<p class="label-copper">'+esc(e.series)+' · '+esc(e.season)+'</p>'
+  +    '<h1 class="text-hero mt-6">'+esc(e.title.toUpperCase())+'</h1>'
+  +    '<p class="text-lead mt-6">'+esc(e.subtitle)+'</p>'
+  +    '<div class="row mt-8">'
+  +      '<span class="badge badge-live"><span class="live-dot"></span>Día '+dayIndex()+' de '+e.totalDays+'</span>'
+  +      '<span class="badge">'+esc(activePhase() ? activePhase().title : "Fuera de temporada")+'</span>'
+  +      '<a class="pill pill-sm pill-secondary" href="#/fases">Sistema de dificultad</a>'
+  +    '</div>'
+  +  '</div>'
+  +  '<div class="grid-auto grid-auto-2" style="gap:1.5rem;align-items:start">'
+  +    '<div>'
+  +      '<div class="row" style="gap:.75rem">'
+  +        '<span class="badge '+statusClass(s.status)+'"><span class="live-dot"></span>'+(live ? "En directo" : statusLabel(s.status))+'</span>'
+  +        '<span class="label-micro">'+platformLabel(s.platform)+' · '+esc(s.team)+'</span>'
+  +        (live ? '<span class="label-micro tnum" style="margin-left:auto;display:none" data-viewers>'+compact(s.viewers)+' conectados</span>' : '')
+  +      '</div>'
+  +      '<div class="media-frame mt-4" style="aspect-ratio:16/9">'+stage+'</div>'
+  +      fallbackNotice
+  +      '<div class="divider mt-6" style="padding-top:1.5rem;display:flex;flex-direction:column;gap:1.25rem" data-channel-head>'+channelHead(s, live)+'</div>'
+  +    '</div>'
+  +    '<aside class="panel stack" style="overflow:hidden" aria-label="Conversación del directo">'
+  +      '<div style="display:flex;gap:.25rem;padding:.5rem;border-bottom:1px solid var(--color-keyline)">'
+  +        '<button class="filter-chip" data-action="chat-tab" data-tab="chat" aria-pressed="'+(state.chatTab === "chat")+'">Chat oficial</button>'
+  +        '<button class="filter-chip" data-action="chat-tab" data-tab="log" aria-pressed="'+(state.chatTab === "log")+'">Registro del día</button>'
+  +      '</div>'
+  +      '<div style="padding:1rem">'+chat+'</div>'
+  +    '</aside>'
+  +  '</div>'
+  +  '<section class="mt-20" style="margin-top:5rem">'
+  +    '<div class="row-between">'
+  +      '<div><h2 class="text-display">Los catorce canales</h2>'
+  +      '<p class="text-lead mt-2 max-w-52ch">Elija un canal para subirlo al escenario. Los que están fuera de línea siguen disponibles para su canal archivado.</p></div>'
+  +      '<div class="row" role="group" aria-label="Filtrar canales">'
+  +        filters.map(function(f){
+          var count = f.id === "all" ? t.total : DB.data.streamers.filter(function(x){ return x.status === f.id; }).length;
+          return '<button class="filter-chip" data-action="filter" data-id="'+f.id+'" aria-pressed="'+(state.filterStreamers === f.id)+'">'+f.label+' <span class="filter-chip-count">'+count+'</span></button>';
+        }).join("")
+      +      '</div>'
+  +    '</div>'
+  +    '<ul class="grid-auto grid-auto-2 grid-auto-3 mt-8" style="gap:1rem">'+cards+'</ul>'
+  +  '</section>'
+  +  '<section class="band" style="padding-bottom:0">'
+  +    '<p class="label-micro">Las reglas del protocolo</p>'
+  +    '<ol class="grid-auto grid-auto-2 mt-8" style="gap:1px;overflow:hidden;border-radius:var(--radius-3xl);border:1px solid var(--color-keyline);background:var(--color-keyline)">'
+  +      [
+          "Catorce personas dentro. Ninguna extracción no médica.",
+          "Ciclo de aire cerrado: el aire se mide, no se repone.",
+          "Las cámaras graban en local durante toda la temporada.",
+          "Emisión con 90 segundos de retraso. La sala de montaje no toca el directo."
+        ].map(function(rule, i){
+          return '<li style="display:flex;gap:1.25rem;padding:1.5rem;background:#000;transition:background-color .2s" onmouseover="this.style.background=var(--color-graphite)" onmouseout="this.style.background=\'#000\'">'
+            + '<span style="font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--color-steel);font-variant-numeric:tabular-nums">'+String(i+1).padStart(2,"0")+'</span>'
+            + '<p class="text-body" style="color:var(--color-ash)">'+esc(rule)+'</p></li>';
+        }).join("")
+    +    '</ol>'
+  +  '</section>'
+  + '</div></section>';
+}
+
+function channelHead(s, live){
+  return '<div class="row-between">'
+    + '<div style="min-width:0"><h2 class="truncate text-title">'+esc(s.name)+'</h2>'
+    + '<p class="text-meta mt-2">'+esc(s.role)+' · Asiento '+String(s.seat).padStart(2,"0")+' · '+esc(s.handle)+'</p>'
+    + '<p class="text-meta mt-2" style="color:var(--color-slate);max-width:62ch">'+esc(s.statusNote)+'</p></div>'
+    + '<div class="row">'
+    +   '<span class="label-micro tnum">'+int(s.total)+' acumulados</span>'
+    +   '<a class="pill" href="'+esc(s.watch)+'" target="_blank" rel="noreferrer">Unirse<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 16 16 8M9.5 8H16v6.5"/></svg></a>'
+    + '</div></div>'
+    + '<p class="label-micro mt-4">Emisión con '+DB.data.event.delaySeconds+' segundos de retraso</p>';
+}
+
+/* ==========================================================================
+   8. FASES
+   ========================================================================== */
+var TARGET_LABEL = { conditions:"Condiciones", environment:"Entorno", creatures:"Fauna", limits:"Limitaciones" };
+
+function modifierGroup(title, note, list){
+  var ordered = list.slice().sort(function(a,b){ return rank(b.severity) - rank(a.severity); });
+  return '<div>'
+    + '<div class="row-between" style="border-bottom:1px solid var(--color-keyline);padding-bottom:1rem"><h3 style="font-size:15px;font-weight:600">'+esc(title)+'</h3><span class="label-micro" style="color:var(--color-steel)">'+esc(note)+'</span></div>'
+    + '<ul class="stack stack-4 mt-4">'
+    + ordered.map(function(m){
+        var tone = (m.severity === "alta" || m.severity === "extrema") ? "label-copper" : "";
+        return '<li class="stack" style="gap:.375rem">'
+          + '<div class="row-between"><span style="font-size:15px;font-weight:500">'+esc(m.label)+'</span>'
+          + '<span class="label-micro '+tone+'" style="flex:none">'+esc(m.severity)+'</span></div>'
+          + '<p class="text-meta">'+esc(m.detail)+'</p></li>';
+      }).join("")
+    + '</ul></div>';
+}
+
+function rank(sev){ return { baja:1, media:2, alta:3, extrema:4 }[sev] || 0; }
+
+function renderPhases(){
+  var phases = DB.data.phases;
+  var current = null;
+  for (var i = 0; i < phases.length; i++){
+    if (phases[i].id === state.phaseId) current = phases[i];
+  }
+  if (!current) current = phases[0];
+
+  var tabs = phases.map(function(p){
+    var st = phaseState(p);
+    return '<button role="tab" id="tab-'+esc(p.id)+'" aria-selected="'+(p.id === current.id)+'" aria-controls="panel-fase" tabindex="'+(p.id === current.id ? "0" : "-1")+'" data-action="phase" data-id="'+esc(p.id)+'" style="position:relative;flex:1 0 auto;min-width:150px;text-align:left">'
+      + '<span aria-hidden="true" style="position:absolute;left:0;right:0;top:11px;height:1px;background:var(--color-keyline)"></span>'
+      + '<span aria-hidden="true" style="position:relative;display:block;width:9px;height:9px;border-radius:9999px;margin-top:7px;background:'+(st === "upcoming" ? "#000" : "var(--color-porcelain)")+';box-shadow:inset 0 0 0 1px '+(st === "upcoming" ? "var(--color-steel)" : "transparent")+'"></span>'
+      + '<span class="stack" style="gap:.5rem;margin-top:.5rem">'
+      + '<span class="label-micro" style="'+(p.id === current.id ? "color:var(--color-porcelain)" : "")+'">Semana '+p.week+'</span>'
+      + '<span style="font-size:15px;font-weight:600;letter-spacing:-.011em;color:'+(p.id === current.id ? "var(--color-porcelain)" : "var(--color-ash)")+'">'+esc(p.title)+'</span>'
+      + difficultyMeter(p.difficulty)
+      + '<span class="label-micro" style="color:var(--color-steel)">'+PHASE_STATE_LABEL[st]+'</span>'
+      + '</span></button>';
+  }).join("");
+
+  var c = current.conditions;
+  var st = phaseState(current);
+  var patches = (current.patches || []).slice().sort(function(a,b){ return Date.parse(b.appliedAt) - Date.parse(a.appliedAt); });
+
+  var patchBlock = patches.length
+    ? '<div class="divider mt-10" style="padding-top:2rem"><p class="label-micro">Parches aplicados en plena semana</p>'
+      + '<p class="text-meta mt-3 max-w-72ch">El comité cambia las reglas con la temporada en marcha. Cada cambio queda anotado con su motivo.</p>'
+      + '<ol class="stack stack-4 mt-6">' + patches.map(function(p){
+          return '<li class="panel-inner" style="padding:1.25rem">'
+            + '<div class="row" style="gap:.75rem"><span class="label-copper">'+esc(p.code)+'</span>'
+            + '<span class="label-micro" style="color:var(--color-slate)">'+esc(TARGET_LABEL[p.target] || p.target)+'</span>'
+            + '<span class="label-micro" style="color:var(--color-steel)">'+esc(utcStamp(p.appliedAt))+'</span></div>'
+            + '<p class="mt-3" style="font-size:15px;font-weight:600">'+esc(p.summary)+'</p>'
+            + '<p class="text-meta mt-2">'+esc(p.detail)+'</p>'
+            + '<p class="text-meta mt-3" style="padding-top:.75rem;border-top:1px solid var(--color-keyline);color:var(--color-slate)"><span style="color:var(--color-porcelain)">Motivo:</span> '+esc(p.reason)+'</p>'
+            + '<p class="label-micro mt-2" style="color:var(--color-steel)">'+esc(p.author)+'</p></li>';
+        }).join("") + '</ol></div>'
+    : "";
+
+  $("#view-fases").innerHTML =
+    '<section class="band" style="border-bottom:1px solid var(--color-keyline)">'
+  + '<div class="shell-wide">'
+  +  '<p class="label-copper">Sistema de dificultad</p>'
+  +  '<h1 class="text-display mt-5" style="max-width:18ch">Lo que cambia cada semana y lo que deja de estar permitido.</h1>'
+  +  '<p class="text-lead mt-6 max-w-72ch">El sistema está publicado entero, incluidas las fases que aún no han empezado. Lo que está en esta página es exactamente lo que se aplica dentro de la VAAK-07.</p>'
+  +  '<div class="row mt-8">'
+  +    '<span class="badge badge-live"><span class="live-dot"></span>'+(activePhase() ? "Semana "+activePhase().week+" en curso" : "Fuera de temporada")+'</span>'
+  +    '<a class="pill pill-sm pill-primary" href="#/">Volver al directo</a>'
+  +  '</div>'
+  + '</div></section>'
+  + '<section class="band deferred">'
+  + '<div class="shell-wide">'
+  +  '<div style="overflow-x:auto;scrollbar-width:none"><div role="tablist" aria-label="Semanas de la temporada" style="display:flex;gap:1.5rem;min-width:760px;padding-right:1rem">'+tabs+'</div></div>'
+  +  '<div id="panel-fase" role="tabpanel" aria-labelledby="tab-'+esc(current.id)+'" tabindex="0" class="panel-carbon mt-8" style="padding:1.5rem">'
+  +   '<div class="row" style="gap:.75rem">'
+  +     '<span class="badge '+(st === "active" ? "badge-live" : st === "completed" ? "" : "badge-muted")+'">'+(st === "completed" ? "Superada" : PHASE_STATE_LABEL[st])+'</span>'
+  +     '<span class="label-micro">Días '+current.dayRange[0]+"–"+current.dayRange[1]+' · '+shortDate(current.startsAt)+" — "+shortDate(current.endsAt)+'</span>'
+  +     '<span class="row" style="margin-left:auto;gap:.75rem"><span class="label-micro">Dificultad</span>'+difficultyMeter(current.difficulty, true)+'</span>'
+  +   '</div>'
+  +   '<h2 class="text-display mt-6">'+esc(current.title)+'</h2>'
+  +   '<p class="text-lead mt-3">'+esc(current.subtitle)+'</p>'
+  +   '<p class="text-body mt-6 max-w-72ch" style="color:var(--color-slate)">'+esc(current.summary)+'</p>'
+  +   '<div class="grid-auto grid-auto-4 mt-10">'
+  +     measure("Viento sostenido", c.wind + " km/h", "sin corriente")
+  +     measure("Temperatura mínima", c.temperature + c.unit, c.tempNote)
+  +     measure("Luz diurna", c.daylight, "por jornada")
+  +     measure("Oxígeno por persona", c.oxygen + " min", "de aire limpio")
+  +   '</div>'
+  +   '<div class="grid-auto grid-auto-3 mt-12">'
+  +     modifierGroup("Modificadores de entorno", "Lo que hace el sistema.", current.environment)
+  +     modifierGroup("Mutaciones de la fauna", "Lo que se ha adaptado.", current.creatures)
+  +     modifierGroup("Limitaciones", "Lo que ya no está permitido.", current.limits)
+  +   '</div>'
+  +   '<div class="divider mt-12" style="padding-top:2rem"><p class="label-micro">Comparación con la semana anterior</p>'
+  +   '<p class="text-body mt-3 max-w-78ch" style="color:var(--color-ash)">'+esc(current.comparedTo)+'</p></div>'
+  +   patchBlock
+  +  '</div>'
+  + '</div></section>';
+}
+
+function measure(label, value, unit){
+  return '<div class="measure">'
+    + '<span class="label-micro">'+esc(label)+'</span>'
+    + '<span class="measure-value">'+esc(value)+'</span>'
+    + '<span class="measure-unit">'+esc(unit)+'</span></div>';
+}
+
+/* ==========================================================================
+   9. LORE
+   ========================================================================== */
+function entryUnlocked(entry, now){ return Date.parse(entry.unlockAt) <= now; }
+
+function renderLore(){
+  var entries = DB.data.lore.slice().sort(function(a,b){ return Date.parse(b.recordedAt) - Date.parse(a.recordedAt); });
+  var weeks = entries.map(function(e){ return e.week; }).filter(function(w,i,a){ return a.indexOf(w) === i; }).sort();
+  var published = entries.filter(function(e){ return entryUnlocked(e, state.now); }).length;
+
+  var visible = state.loreFilter === "all" ? entries
+    : state.loreFilter === "published" ? entries.filter(function(e){ return entryUnlocked(e, state.now); })
+    : entries.filter(function(e){ return e.week === Number(state.loreFilter); });
+
+  var filters = [{ id:"all", label:"Todas" }, { id:"published", label:"Publicadas" }]
+    .concat(weeks.map(function(w){ return { id:String(w), label:"Semana "+w }; }))
+    .map(function(f){
+      var count = f.id === "all" ? entries.length
+        : f.id === "published" ? published
+        : entries.filter(function(e){ return e.week === Number(f.id); }).length;
+      return '<button class="filter-chip" data-action="lore-filter" data-id="'+f.id+'" aria-pressed="'+(state.loreFilter === f.id)+'">'+f.label+' <span class="filter-chip-count">'+count+'</span></button>';
+    }).join("");
+
+  var cards = visible.map(function(entry){
+    var open = entryUnlocked(entry, state.now);
+    var isOpen = state.openEntry === entry.id;
+    var head =
+      '<div class="row-between" style="padding:1.25rem">'
+      + '<div style="min-width:0"><p class="row" style="gap:.75rem">'
+      + '<span class="label-micro" style="color:var(--color-porcelain)">'+esc(entry.title)+'</span>'
+      + '<span class="label-copper">'+esc(entry.classification)+'</span></p>'
+      + '<p class="text-meta mt-2">'+esc(entry.author)+' · Semana '+entry.week+' · Grabada el '+shortDate(entry.recordedAt)+'</p></div>'
+      + '<div class="row">'
+      + (open
+          ? '<span class="label-micro row" style="gap:.375rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 7.7-1.6"/></svg>Publicada</span>'
+          : '<span class="label-copper row" style="gap:.375rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>'+countdown(entry.unlockAt, state.now)+'</span>')
+      + '<button class="filter-chip" data-action="lore-open" data-id="'+esc(entry.id)+'" aria-expanded="'+isOpen+'" aria-controls="entrada-'+esc(entry.id)+'" style="width:36px;padding:0;justify-content:center" aria-label="'+(isOpen ? "Contraer" : "Expandir")+' '+esc(entry.title)+'">'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform:rotate('+(isOpen ? 180 : 0)+'deg);transition:transform .2s" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></button>'
+      + '</div></div>';
+
+    var body;
+    if (!isOpen){
+      body = '<div id="entrada-'+esc(entry.id)+'" hidden></div>';
+    } else if (open){
+      body = '<div id="entrada-'+esc(entry.id)+'" style="padding:1.25rem"><ol class="stack" style="gap:.375rem">'
+        + entry.lines.map(function(line){
+            var parts = line.split(/\s{2,}/);
+            var stamp = parts.shift();
+            return '<li class="terminal-line"><span class="terminal-time">'+esc(stamp)+'</span> <span style="color:var(--color-porcelain)">'+esc(parts.join(" "))+'</span></li>';
+          }).join("")
+        + '</ol></div>';
+    } else {
+      body = '<div id="entrada-'+esc(entry.id)+'" style="padding:1.25rem">'
+        + '<p class="label-micro row" style="gap:.5rem;color:var(--color-steel)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="m7.5 10 2.5 2-2.5 2M13 14.5h4"/></svg>Contenido retenido hasta '+esc(utcStamp(entry.unlockAt))+'</p>'
+        + '<div aria-hidden="true" class="stack mt-4" style="gap:.75rem">'
+        + entry.lines.map(function(line){ return '<p class="pixelated terminal-line">'+esc(line)+'</p>'; }).join("")
+        + '</div>'
+        + '<p class="text-meta mt-4" style="color:var(--color-slate)">El registro permanece cifrado hasta su publicación.</p></div>';
+    }
+
+    return '<li class="terminal" style="overflow:hidden">'+head+body+'</li>';
+  }).join("");
+
+  $("#view-lore").innerHTML =
+    '<section class="band" style="border-bottom:1px solid var(--color-keyline)">'
+  + '<div class="shell-wide">'
+  +  '<p class="row" style="gap:.75rem"><span class="label-copper">Registro de supervivencia</span><span class="brand-sep"></span><span class="label-copper">'+esc(DB.data.event.classification)+'</span></p>'
+  +  '<h1 class="text-display mt-6" style="max-width:16ch">Lo que se escribió antes de que nadie pudiera contarlo.</h1>'
+  +  '<p class="text-lead mt-6 max-w-72ch">Cada bitácora se publica con 48 horas de retraso. Las anteriores al cierre de la fase quedan cifradas hasta la apertura de la siguiente.</p>'
+  +  '<div class="row mt-8"><span class="badge">'+published+" publicadas · "+(entries.length - published)+" retenidas</span>"
+  +  '<a class="pill pill-sm pill-primary" href="#/">Volver al directo</a></div>'
+  + '</div></section>'
+  + '<section class="band deferred">'
+  + '<div class="shell-wide">'
+  +  '<div class="row-between"><p class="label-micro">'+published+' de '+entries.length+' entradas publicadas</p>'
+  +  '<div class="row" role="group" aria-label="Filtrar bitácoras">'+filters+'</div></div>'
+  +  '<ol class="stack mt-8" style="gap:1.25rem">' + (cards || '<li class="text-body" style="color:var(--color-ash)">No hay entradas con ese filtro.</li>') + '</ol>'
+  +  '<div class="notice mt-12 stack">'
+  +    '<p class="label-micro">Procedencia y honestidad</p>'
+  +    '<p class="text-body" style="color:var(--color-ash)">Las bitácoras se transcriben desde la grabación del casco de cada participante. El pixelado es una convención visual, no un cifrado: el texto retenido sigue en el archivo. Si algún día hay material real, esto tiene que salir del HTML público y servirse desde una ruta autenticada.</p>'
+  +  '</div>'
+  + '</div></section>';
+}
+
+/* ==========================================================================
+   10. ADMIN — estado local, NO seguridad
+   ========================================================================== */
+var ADMIN_PASSWORD = "vaak-2026";
+var adminDraft = {};
+
+function renderAdmin(){
+  if (!state.adminAuth){
+    $("#view-admin").innerHTML =
+      '<section class="band" style="display:flex;align-items:center;min-height:60vh">'
+    + '<div class="panel" style="width:100%;max-width:440px;margin-inline:auto;padding:2rem">'
+    +   '<p class="label-copper">Acceso restringido</p>'
+    +   '<h1 class="text-title mt-5">Centro de Control</h1>'
+    +   '<p class="text-meta mt-3">Sala de producción de Vaak OutBreak. Acceso para el equipo de sala: cada cambio queda anotado en este navegador.</p>'
+    +   '<div class="alert-critical mt-6" style="padding:1rem">'
+    +     '<p class="label-blood">Esto no es seguridad</p>'
+    +     '<p class="text-meta mt-2">La clave viaja dentro de este mismo archivo. Cualquiera puede leerla en el código o en la consola del navegador. Sirve para no tocar el contenido por error, no para ocultarlo.</p>'
+    +   '</div>'
+    +   '<form class="stack stack-4 mt-6" data-action="admin-login">'
+    +     '<label><span class="field-label">Contraseña de operador</span><input class="field" type="password" name="password" autocomplete="current-password" required></label>'
+    +     '<p class="label-blood" data-login-error hidden>Contraseña incorrecta.</p>'
+    +     '<button class="pill pill-primary w-full" type="submit">Abrir el Centro de Control</button>'
+    +   '</form>'
+    +   '<p class="label-micro mt-8" style="border-top:1px solid var(--color-keyline);padding-top:1.25rem;color:var(--color-steel)">Clave de la demo: '+esc(ADMIN_PASSWORD)+'</p>'
+    + '</div></section>';
+    return;
+  }
+
+  var t = tally();
+  var tabs = [
+    { id:"canales", label:"Canales" },
+    { id:"fases", label:"Fases y parches" },
+    { id:"lore", label:"Bitácoras" },
+    { id:"datos", label:"Datos" }
+  ];
+
+  $("#view-admin").innerHTML =
+    '<section class="band" style="padding-top:3rem">'
+  + '<div class="shell-wide">'
+  +  '<div class="row-between"><div><p class="label-copper">Sala de producción</p>'
+  +  '<h1 class="text-display mt-4">Centro de Control</h1>'
+  +  '<p class="text-lead mt-4 max-w-58ch">Lo que se edita aquí aparece en el sitio público al instante, en este navegador. Para que llegue a todo el mundo hay que exportar el JSON y subirlo al repositorio.</p></div>'
+  +  '<div class="row" role="tablist" aria-label="Secciones del Centro de Control">'
+  +    tabs.map(function(x){
+        return '<button class="filter-chip" role="tab" data-action="admin-tab" data-id="'+x.id+'" aria-selected="'+(state.adminTab === x.id)+'" aria-pressed="'+(state.adminTab === x.id)+'">'+x.label+'</button>';
+      }).join("")
+  +  '</div></div>'
+  +  '<div class="grid-auto grid-auto-4 mt-10">'
+  +    measure("Canales", String(t.total), "en el directorio")
+  +    measure("En directo", String(t.live), "canales transmitiendo")
+  +    measure("Parches", String(DB.data.phases.reduce(function(a,p){ return a + (p.patches||[]).length; },0)), "aplicados")
+  +    measure("Bitácoras", String(DB.data.lore.length), "en el registro")
+  +  '</div>'
+  +  '<div class="mt-10">' + adminSection() + '</div>'
+  + '</div></section>';
+
+  wireAdmin();
+}
+
+function adminSection(){
+  if (state.adminTab === "canales") return adminChannels();
+  if (state.adminTab === "fases") return adminPhases();
+  if (state.adminTab === "lore") return adminLore();
+  return adminData();
+}
+
+function listSelect(id, items, value){
+  return items.map(function(i){
+    return '<option value="'+esc(i.id)+'"'+(i.id === value ? " selected" : "")+'>'+esc(i.label)+'</option>';
+  }).join("");
+}
+
+function adminChannels(){
+  var items = DB.data.streamers.map(function(s){
+    return { id:s.id, label:s.name + " · asiento " + String(s.seat).padStart(2,"0") };
+  });
+  var current = DB.data.streamers.filter(function(s){ return s.id === state.editId; })[0] || DB.data.streamers[0];
+
+  var list = '<div class="panel" style="overflow:hidden">'
+    + '<div class="row-between" style="padding:1rem;border-bottom:1px solid var(--color-keyline)"><p class="label-micro">'+DB.data.streamers.length+' canales</p>'
+    + '<span class="label-micro" style="color:var(--color-steel)">'+esc(shortDate(new Date().toISOString()))+'</span></div>'
+    + '<ul class="stack" style="gap:.25rem;padding:.5rem;max-height:520px;overflow-y:auto">'
+    + DB.data.streamers.map(function(s){
+        var on = s.id === current.id;
+        return '<li><button data-action="admin-edit" data-id="'+esc(s.id)+'" aria-current="'+on+'" style="display:flex;width:100%;align-items:center;gap:.75rem;padding:.75rem;border-radius:var(--radius-inner);text-align:left;'+(on ? "background:var(--color-porcelain);color:#000" : "")+'">'
+          + '<span class="live-dot" style="'+(s.status === "live" ? "" : "opacity:.4")+'"></span>'
+          + '<span style="min-width:0"><span class="block truncate text-meta" style="font-weight:500">'+esc(s.name)+'</span>'
+          + '<span class="block truncate text-micro" style="color:var(--color-slate)">'+platformLabel(s.platform)+' · '+statusLabel(s.status)+'</span></span></button></li>';
+      }).join("")
+    + '</ul></div>';
+
+  var form = '<form class="panel stack stack-6" style="padding:1.5rem" data-action="admin-save-streamer">'
+    + '<input type="hidden" name="id" value="'+esc(current.id)+'">'
+    + '<div class="row-between"><div><p class="label-micro">'+esc(current.id)+'</p><h2 class="text-title mt-2">'+esc(current.name)+'</h2></div>'
+    + '<span class="badge '+statusClass(current.status)+'"><span class="live-dot"></span>'+statusLabel(current.status)+'</span></div>'
+    + '<div class="field-grid field-grid-2">'
+    +   field("name","Nombre",current.name) + field("handle","Alias",current.handle)
+    +   select("platform","Plataforma",current.platform,[["kick","Kick"],["twitch","Twitch"],["youtube","YouTube"]])
+    +   select("status","Estado",current.status,[["live","En directo"],["offline","Fuera de línea"],["eliminated","Retirado"]])
+    +   field("role","Rol",current.role) + field("team","Cuadrilla",current.team)
+    +   field("seat","Asiento",current.seat,"number") + field("viewers","Espectadores ahora",current.viewers,"number")
+    +   field("total","Espectadores acumulados",current.total,"number") + field("channel","Identificador de canal",current.channel)
+    + '</div>'
+    + '<div>' + area("statusNote","Nota de estado",current.statusNote,2) + '</div>'
+    + '<div>' + area("embed","Plantilla del player",current.embed,2,'Usa {channel} y {host}. Solo hosts de Kick, Twitch o YouTube.') + '</div>'
+    + '<div class="field-grid field-grid-2">' + field("watch","URL del canal",current.watch,"url") + field("chat","URL del chat",current.chat,"url") + '</div>'
+    + '<div class="divider" style="padding-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap">'
+    +   '<button class="pill" type="submit">Guardar canal</button>'
+    +   '<button class="pill pill-sm pill-danger" type="button" data-action="admin-del-streamer" data-id="'+esc(current.id)+'">Borrar canal</button>'
+    + '</div>'
+    + '</form>';
+
+  return '<div class="grid" style="grid-template-columns:1fr;gap:1.5rem;align-items:start" data-admin-grid>'
+    + '<div>' + list + '</div><div>' + form + '</div></div>'
+    + '<style>@media (min-width:1024px){[data-admin-grid]{grid-template-columns:340px minmax(0,1fr) !important}}</style>';
+}
+
+function adminPhases(){
+  var phases = DB.data.phases;
+  var current = phases.filter(function(p){ return p.id === state.editId; })[0] || phases[0];
+  if (!current){ current = phases[0]; }
+  var list = '<div class="panel" style="overflow:hidden"><p class="label-micro" style="padding:1rem;border-bottom:1px solid var(--color-keyline)">Sistema · '+phases.length+' fases</p>'
+    + '<ul class="stack" style="gap:.25rem;padding:.5rem;max-height:520px;overflow-y:auto">'
+    + phases.map(function(p){
+        var on = p.id === current.id;
+        return '<li><button data-action="admin-edit" data-id="'+esc(p.id)+'" aria-current="'+on+'" style="display:block;width:100%;text-align:left;padding:.75rem;border-radius:var(--radius-inner);'+(on ? "background:var(--color-porcelain);color:#000" : "")+'">'
+          + '<span class="row-between"><span class="text-micro" style="letter-spacing:.06em;text-transform:uppercase;opacity:.6">Semana '+p.week+'</span>'
+          + ((p.patches||[]).length ? '<span class="label-micro" style="'+(on ? "" : "color:var(--color-copper-new)")+'">'+(p.patches||[]).length+' parche'+((p.patches||[]).length === 1 ? "" : "s")+'</span>' : "")
+          + '</span><span class="block truncate mt-2 text-meta" style="font-weight:500">'+esc(p.title)+'</span></button></li>';
+      }).join("")
+    + '</ul></div>';
+
+  var patchForm = '<form class="panel-inner stack stack-4" style="padding:1rem" data-action="admin-add-patch">'
+    + '<input type="hidden" name="phaseId" value="'+esc(current.id)+'">'
+    + '<p class="label-micro">Nuevo parche</p>'
+    + '<div class="field-grid field-grid-2">'
+    +   field("author","Autor","Comité de protocolo") + field("code","Código","se genera solo")
+    +   select("target","Grupo","conditions",[["conditions","Condiciones"],["environment","Entorno"],["creatures","Fauna"],["limits","Limitaciones"]])
+    +   select("severity","Severidad","alta",[["baja","Baja"],["media","Media"],["alta","Alta"],["extrema","Extrema"]])
+    + '</div>'
+    + '<div>' + field("summary","Qué cambia","","text","Titular de una línea") + '</div>'
+    + '<div>' + area("detail","Detalle","",3) + '</div>'
+    + '<div>' + area("reason","Motivo","",2) + '</div>'
+    + '<button class="pill pill-sm" type="submit">Aplicar parche</button>'
+    + '</form>';
+
+  var patchList = (current.patches && current.patches.length)
+    ? '<ol class="stack stack-4 mt-6">' + current.patches.map(function(p){
+        return '<li class="panel-inner" style="padding:1.25rem">'
+          + '<div class="row-between"><p class="row" style="gap:.75rem"><span class="label-copper">'+esc(p.code)+'</span>'
+          + '<span class="label-micro" style="'+(p.severity === "alta" || p.severity === "extrema" ? "color:var(--color-copper-new)" : "")+'">'+esc(p.severity)+' · '+esc(TARGET_LABEL[p.target]||p.target)+'</span></p>'
+          + '<button class="filter-chip" data-action="admin-del-patch" data-phase="'+esc(current.id)+'" data-id="'+esc(p.id)+'" aria-label="Retirar el parche '+esc(p.code)+'">'
+          + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4.5 7h15M9.5 7V5h5v2M6.5 7l.8 12.5h9.4L17.5 7"/></svg></button></div>'
+          + '<p class="mt-3" style="font-size:15px;font-weight:600">'+esc(p.summary)+'</p>'
+          + '<p class="text-meta mt-2">'+esc(p.detail)+'</p>'
+          + '<p class="text-meta mt-3" style="padding-top:.75rem;border-top:1px solid var(--color-keyline);color:var(--color-slate)"><span style="color:var(--color-porcelain)">Motivo:</span> '+esc(p.reason)+'</p>'
+          + '<p class="label-micro mt-2" style="color:var(--color-steel)">'+esc(p.author)+' · '+esc(utcStamp(p.appliedAt))+'</p></li>';
+      }).join("") + '</ol>'
+    : '<p class="text-meta mt-6">Sin parches. La semana se aplica con las medidas de arriba.</p>';
+
+  var form = '<div class="stack stack-6">'
+    + '<form class="panel stack stack-6" style="padding:1.5rem" data-action="admin-save-phase">'
+    +   '<input type="hidden" name="id" value="'+esc(current.id)+'">'
+    +   '<div><p class="label-micro">Semana '+current.week+' · días '+current.dayRange[0]+"–"+current.dayRange[1]+'</p>'
+    +   '<h2 class="text-title mt-2">'+esc(current.title)+'</h2></div>'
+    +   '<div class="field-grid field-grid-2">'
+    +     field("title","Título",current.title)
+    +     select("difficulty","Dificultad",String(current.difficulty),[["1","1 · tolerable"],["2","2 · baja"],["3","3 · media"],["4","4 · alta"],["5","5 · sin margen"]])
+    +   '</div>'
+    +   '<div>' + area("subtitle","Subtítulo",current.subtitle,2) + '</div>'
+    +   '<div>' + area("summary","Resumen",current.summary,4) + '</div>'
+    +   '<div class="divider" style="padding-top:1.5rem"><p class="label-micro mb-4">Medidas</p>'
+    +   '<div class="field-grid field-grid-3">'
+    +     field("temperature","Temperatura mínima",current.conditions.temperature)
+    +     field("oxygen","Oxígeno por persona",current.conditions.oxygen,"number")
+    +     field("charges","Cargas de leña al día",current.conditions.charges,"number")
+    +     field("daylight","Luz diurna",current.conditions.daylight)
+    +   '</div></div>'
+    +   '<div>' + area("comparedTo","Comparación con la semana anterior",current.comparedTo,3) + '</div>'
+    +   '<div class="divider" style="padding-top:1.5rem"><button class="pill" type="submit">Guardar fase</button></div>'
+    + '</form>'
+    + '<section class="panel" style="padding:1.5rem">'
+    +   '<div class="row-between"><div><p class="label-micro">Historial de la semana</p><h3 class="text-title mt-2">Parches de dificultad</h3></div></div>'
+    +   patchForm + patchList
+    + '</section></div>';
+
+  return '<div class="grid" style="grid-template-columns:1fr;gap:1.5rem;align-items:start" data-admin-grid>'
+    + '<div>' + list + '</div><div>' + form + '</div></div>'
+    + '<style>@media (min-width:1024px){[data-admin-grid]{grid-template-columns:300px minmax(0,1fr) !important}}</style>';
+}
+
+function adminLore(){
+  var entries = DB.data.lore.slice().sort(function(a,b){ return Date.parse(b.recordedAt) - Date.parse(a.recordedAt); });
+  var current = entries.filter(function(e){ return e.id === state.editId; })[0] || entries[0];
+
+  var list = '<div class="panel" style="overflow:hidden">'
+    + '<div class="row-between" style="padding:1rem;border-bottom:1px solid var(--color-keyline)"><p class="label-micro">'+entries.length+' bitácoras</p></div>'
+    + '<ul class="stack" style="gap:.25rem;padding:.5rem;max-height:520px;overflow-y:auto">'
+    + entries.map(function(e){
+        var on = e.id === current.id;
+        var open = entryUnlocked(e, state.now);
+        return '<li><button data-action="admin-edit" data-id="'+esc(e.id)+'" aria-current="'+on+'" style="display:block;width:100%;text-align:left;padding:.75rem;border-radius:var(--radius-inner);'+(on ? "background:var(--color-porcelain);color:#000" : "")+'">'
+          + '<span class="row-between"><span class="text-micro" style="letter-spacing:.06em;text-transform:uppercase;opacity:.6">Semana '+e.week+'</span>'
+          + '<span class="text-micro" style="'+(open ? "opacity:.6" : "color:var(--color-copper-new)")+'">'+(open ? "publicada" : "retenida")+'</span></span>'
+          + '<span class="block truncate mt-2 text-meta" style="font-weight:500">'+esc(e.title)+'</span></button></li>';
+      }).join("")
+    + '</ul></div>';
+
+  var form = '<form class="panel stack stack-6" style="padding:1.5rem" data-action="admin-save-lore">'
+    + '<input type="hidden" name="id" value="'+esc(current.id)+'">'
+    + '<div><p class="label-micro">'+esc(current.id)+'</p><h2 class="text-title mt-2">'+esc(current.title)+'</h2></div>'
+    + '<div>' + field("title","Título",current.title) + '</div>'
+    + '<div>' + area("lines","Líneas",current.lines.join("\n"),8,"Una línea por entrada. El prefijo HH:MM se muestra en el terminal.") + '</div>'
+    + '<div class="field-grid field-grid-3">'
+    +   field("author","Autor",current.author)
+    +   select("week","Semana",String(current.week),[["1","Semana 1"],["2","Semana 2"],["3","Semana 3"],["4","Semana 4"],["5","Semana 5"]])
+    +   field("classification","Clasificación",current.classification)
+    +   field("recordedAt","Grabada",toLocalInput(current.recordedAt),"datetime-local")
+    +   field("unlockAt","Se publica",toLocalInput(current.unlockAt),"datetime-local")
+    + '</div>'
+    + '<div class="divider" style="padding-top:1.5rem;display:flex;gap:.75rem;flex-wrap:wrap">'
+    +   '<button class="pill" type="submit">Guardar bitácora</button>'
+    +   '<button class="pill pill-sm pill-danger" type="button" data-action="admin-del-lore" data-id="'+esc(current.id)+'">Borrar</button>'
+    + '</div>'
+    + '</form>';
+
+  return '<div class="grid" style="grid-template-columns:1fr;gap:1.5rem;align-items:start" data-admin-grid>'
+    + '<div>' + list + '</div><div>' + form + '</div></div>'
+    + '<style>@media (min-width:1024px){[data-admin-grid]{grid-template-columns:340px minmax(0,1fr) !important}}</style>';
+}
+
+function adminData(){
+  var size = 0;
+  try{ size = new Blob([JSON.stringify(DB.data)]).size; }catch(e){ size = JSON.stringify(DB.data).length; }
+  return '<div class="stack stack-6">'
+    + '<div class="notice stack"><p class="label-micro">Cómo llega un cambio a todo el mundo</p>'
+    + '<p class="text-body" style="color:var(--color-ash)">Lo que editas aquí vive en el <code>localStorage</code> de este navegador. Sirve para probar sin romper nada. Para que lo vea el resto del mundo hay que exportar el JSON y sustituir el archivo de datos del repositorio, y luego subirlo.</p></div>'
+    + '<div class="panel stack stack-4" style="padding:1.5rem">'
+    +   '<p class="label-micro">Exportar e importar</p>'
+    +   '<p class="text-meta">'+int(size)+' bytes en este navegador. Última escritura: '+esc(utcStamp(new Date().toISOString()))+'</p>'
+    +   '<div class="row">'
+    +     '<button class="pill" data-action="admin-export">Exportar JSON</button>'
+    +     '<button class="pill pill-secondary" data-action="admin-import">Importar JSON</button>'
+    +     '<button class="pill pill-danger" data-action="admin-reset">Restaurar contenido de fábrica</button>'
+    +   '</div>'
+    +   '<input type="file" accept="application/json" id="admin-file" hidden>'
+    + '</div>'
+    + '<div class="panel" style="padding:1.5rem;overflow-x:auto">'
+    +   '<p class="label-micro mb-4">Vista previa</p>'
+    +   '<pre style="font-size:.75rem;line-height:1.55;color:var(--color-ash);max-height:420px;overflow:auto"><code>'+esc(JSON.stringify(DB.data, null, 2).slice(0, 4000))+'</code></pre>'
+    + '</div>'
+    + '</div>';
+}
+
+/* --- helpers de formulario --- */
+function field(name, label, value, type, hint){
+  return '<label><span class="field-label">'+esc(label)+'</span>'
+    + '<input class="field" name="'+esc(name)+'" type="'+(type||"text")+'" value="'+esc(value === undefined || value === null ? "" : value)+'">'
+    + (hint ? '<span class="text-micro mt-2 block" style="color:var(--color-steel);letter-spacing:.02em;text-transform:none">'+esc(hint)+'</span>' : "")
+    + '</label>';
+}
+function area(name, label, value, rows, hint){
+  return '<label><span class="field-label">'+esc(label)+'</span>'
+    + '<textarea class="field" name="'+esc(name)+'" rows="'+(rows||3)+'">'+esc(value)+'</textarea>'
+    + (hint ? '<span class="text-micro mt-2 block" style="color:var(--color-steel);letter-spacing:.02em;text-transform:none">'+esc(hint)+'</span>' : "")
+    + '</label>';
+}
+function select(name, label, value, options){
+  return '<label><span class="field-label">'+esc(label)+'</span><select class="field" name="'+esc(name)+'">'
+    + options.map(function(o){ return '<option value="'+esc(o[0])+'"'+(o[0] === value ? " selected" : "")+'>'+esc(o[1])+'</option>'; }).join("")
+    + '</select></label>';
+}
+
+/* ==========================================================================
+   11. VALIDACIÓN DE ESCRITURAS
+   Lo que se guarda vuelve a pintar las tres vistas públicas, así que un
+   error aquí rompería el sitio entero. Se comprueba antes de escribir.
+   ========================================================================== */
+var EMBED_HOSTS = ["player.kick.com","player.twitch.tv","www.youtube.com","www.youtube-nocookie.com"];
+
+function validate(form){
+  var d = {};
+  var invalid = [];
+  form.querySelectorAll("input,select,textarea").forEach(function(el){
+    d[el.name] = el.value;
+    if (el.getAttribute("aria-invalid") === "true") invalid.push(el.name);
+  });
+  if (invalid.length) return { ok:false, message:"Revisa los campos marcados.", invalid:invalid };
+
+  if (d.watch && !/^https:\/\//.test(d.watch)) return { ok:false, message:"La URL del canal debe empezar por https." };
+  if (d.chat && !/^https:\/\//.test(d.chat)) return { ok:false, message:"La URL del chat debe empezar por https." };
+  if (d.embed){
+    try{
+      var u = new URL(d.embed);
+      if (u.protocol !== "https:") return { ok:false, message:"La plantilla del player debe usar https." };
+      if (EMBED_HOSTS.indexOf(u.hostname) === -1) return { ok:false, message:"El player debe ser de Kick, Twitch o YouTube." };
+    }catch(e){ return { ok:false, message:"La plantilla del player no es una URL válida." }; }
+  }
+  if (d.name !== undefined && !String(d.name).trim()) return { ok:false, message:"El nombre no puede quedar vacío." };
+  if (d.seat !== undefined && (!/^\d+$/.test(d.seat) || Number(d.seat) < 1)) return { ok:false, message:"El asiento debe ser un número entero positivo." };
+  if (d.viewers !== undefined && !/^\d+$/.test(d.viewers)) return { ok:false, message:"Los espectadores deben ser un número entero." };
+  if (d.recordedAt && d.unlockAt && new Date(d.unlockAt) < new Date(d.recordedAt)) return { ok:false, message:"La publicación no puede ser anterior a la grabación." };
+  if (d.lines !== undefined && !String(d.lines).trim()) return { ok:false, message:"La bitácora necesita al menos una línea." };
+  if (d.summary !== undefined && !String(d.summary).trim()) return { ok:false, message:"El parche necesita un titular." };
+  if (d.reason !== undefined && !String(d.reason).trim()) return { ok:false, message:"El parche necesita un motivo." };
+  return { ok:true, data:d };
+}
+
+function markInvalid(form, names){
+  form.querySelectorAll("input,select,textarea").forEach(function(el){
+    if (names.indexOf(el.name) !== -1) el.setAttribute("aria-invalid","true");
+  });
+}
+
+function toast(message, tone){
+  var el = document.createElement("div");
+  el.setAttribute("role","status");
+  el.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:120;padding:.75rem 1.25rem;border-radius:9999px;font-size:.8125rem;max-width:calc(100vw - 32px)"
+    + (tone === "error"
+      ? "background:rgb(220 38 38 / .16);border:1px solid rgb(220 38 38 / .5);color:var(--color-blood)"
+      : "background:var(--color-graphite);border:1px solid var(--color-keyline-strong);color:var(--color-porcelain)");
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3200);
+}
+
+/* ==========================================================================
+   12. EVENTOS
+   ========================================================================== */
+function route(){
+  var hash = (location.hash || "#/").replace(/^#\/?/, "");
+  var view = hash.split("/")[0] || "hub";
+  if (["hub","fases","lore","admin"].indexOf(view) === -1) view = "hub";
+  state.view = view;
+  state.playing = false;
+  state.chatLoaded = false;
+
+  ["hub","fases","lore","admin"].forEach(function(v){
+    $("#view-" + v).hidden = v !== view;
+  });
+  $$(".nav-link").forEach(function(a){
+    if (a.dataset.route === view) a.setAttribute("aria-current","page");
+    else a.removeAttribute("aria-current");
+  });
+  $("#menu-panel").hidden = true;
+  $("#menu-toggle").setAttribute("aria-expanded","false");
+
+  render();
+  window.scrollTo(0, 0);
+}
+
+function render(){
+  renderChrome();
+  if (state.view === "hub") renderHub();
+  if (state.view === "fases") renderPhases();
+  if (state.view === "lore") renderLore();
+  if (state.view === "admin") renderAdmin();
+}
+
+function wireAdmin(){
+  $$("#view-admin form").forEach(function(form){
+    form.addEventListener("submit", function(ev){
+      ev.preventDefault();
+      var kind = form.dataset.action;
+
+      if (kind === "admin-login"){
+        if (form.password.value !== ADMIN_PASSWORD){
+          var err = form.querySelector("[data-login-error]");
+          if (err) err.hidden = false;
+          return;
+        }
+        state.adminAuth = true;
+        renderAdmin();
+        return;
+      }
+
+      var result = validate(form);
+      if (!result.ok){
+        if (result.invalid) markInvalid(form, result.invalid);
+        toast(result.message, "error");
+        return;
+      }
+
+      if (kind === "admin-save-streamer"){
+        var s = DB.data.streamers.filter(function(x){ return x.id === result.data.id; })[0];
+        if (!s) return toast("Ese canal ya no existe.", "error");
+        s.name = result.data.name.trim();
+        s.handle = result.data.handle.trim() || "@" + result.data.name.trim().toLowerCase().replace(/[^a-z0-9]+/g,"");
+        s.platform = result.data.platform;
+        s.status = result.data.status;
+        s.role = result.data.role.trim();
+        s.team = result.data.team.trim();
+        s.seat = Number(result.data.seat);
+        s.viewers = Number(result.data.viewers);
+        s.total = Number(result.data.total);
+        s.channel = result.data.channel.trim();
+        s.embed = result.data.embed.trim();
+        s.watch = result.data.watch.trim();
+        s.chat = result.data.chat.trim();
+        s.statusNote = result.data.statusNote.trim();
+        if (s.status === "live" && s.viewers === 0){
+          return toast("Un canal en directo no puede declarar 0 espectadores.", "error");
+        }
+        DB.save();
+        toast("Canal guardado.");
+      }
+
+      if (kind === "admin-save-phase"){
+        var p = DB.data.phases.filter(function(x){ return x.id === result.data.id; })[0];
+        if (!p) return toast("Esa fase ya no existe.", "error");
+        p.title = result.data.title.trim();
+        p.subtitle = result.data.subtitle.trim();
+        p.summary = result.data.summary.trim();
+        p.comparedTo = result.data.comparedTo.trim();
+        p.difficulty = Number(result.data.difficulty);
+        p.conditions.temperature = result.data.temperature.trim();
+        p.conditions.oxygen = Number(result.data.oxygen);
+        p.conditions.charges = Number(result.data.charges);
+        p.conditions.daylight = result.data.daylight.trim();
+        DB.save();
+        toast("Fase guardada.");
+      }
+
+      if (kind === "admin-add-patch"){
+        var target = DB.data.phases.filter(function(x){ return x.id === result.data.phaseId; })[0];
+        if (!target) return toast("Esa fase ya no existe.", "error");
+        target.patches = target.patches || [];
+        target.patches.push({
+          id:"patch-" + Date.now(),
+          code: result.data.code.trim() || "P-" + String(target.patches.length + 1).padStart(2,"0"),
+          author: result.data.author.trim(),
+          appliedAt: new Date().toISOString(),
+          target: result.data.target,
+          severity: result.data.severity,
+          summary: result.data.summary.trim(),
+          detail: result.data.detail.trim(),
+          reason: result.data.reason.trim()
+        });
+        DB.save();
+        toast("Parche aplicado.");
+      }
+
+      if (kind === "admin-save-lore"){
+        var e = DB.data.lore.filter(function(x){ return x.id === result.data.id; })[0];
+        if (!e) return toast("Esa bitácora ya no existe.", "error");
+        e.title = result.data.title.trim();
+        e.author = result.data.author.trim();
+        e.week = Number(result.data.week);
+        e.classification = result.data.classification.trim();
+        e.recordedAt = new Date(result.data.recordedAt).toISOString();
+        e.unlockAt = new Date(result.data.unlockAt).toISOString();
+        e.lines = result.data.lines.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+        DB.save();
+        toast("Bitácora guardada.");
+      }
+
+      render();
+    });
+  });
+}
+
+document.addEventListener("click", function(ev){
+  var el = ev.target.closest("[data-action]");
+  if (!el) return;
+  var action = el.dataset.action;
+
+  if (action === "play"){ state.playing = true; renderHub(); return; }
+
+  if (action === "switch"){
+    state.activeId = el.dataset.id;
+    state.playing = false;
+    state.chatLoaded = false;
+    state.chatTab = "chat";
+    renderHub();
+    return;
+  }
+
+  if (action === "chat-tab"){ state.chatTab = el.dataset.tab; renderHub(); return; }
+  if (action === "chat-load"){ state.chatLoaded = true; renderHub(); return; }
+  if (action === "filter"){ state.filterStreamers = el.dataset.id; renderHub(); return; }
+  if (action === "phase"){ state.phaseId = el.dataset.id; renderPhases(); return; }
+  if (action === "lore-filter"){ state.loreFilter = el.dataset.id; renderLore(); return; }
+  if (action === "lore-open"){
+    state.openEntry = state.openEntry === el.dataset.id ? null : el.dataset.id;
+    renderLore();
+    return;
+  }
+
+  if (action === "admin-tab"){ state.adminTab = el.dataset.id; state.editId = null; renderAdmin(); return; }
+  if (action === "admin-edit"){ state.editId = el.dataset.id; renderAdmin(); return; }
+
+  if (action === "admin-del-streamer"){
+    if (DB.data.streamers.length <= 1) return toast("No se puede borrar el último canal.", "error");
+    var confirmDel = window.confirm("¿Retirar este canal del directorio?");
+    if (!confirmDel) return;
+    DB.data.streamers = DB.data.streamers.filter(function(x){ return x.id !== el.dataset.id; });
+    state.editId = null;
+    state.activeId = DB.data.streamers[0].id;
+    DB.save();
+    render();
+    toast("Canal retirado.");
+    return;
+  }
+
+  if (action === "admin-del-patch"){
+    var ph = DB.data.phases.filter(function(x){ return x.id === el.dataset.phase; })[0];
+    if (!ph) return;
+    ph.patches = (ph.patches || []).filter(function(x){ return x.id !== el.dataset.id; });
+    DB.save();
+    render();
+    toast("Parche retirado.");
+    return;
+  }
+
+  if (action === "admin-del-lore"){
+    if (DB.data.lore.length <= 1) return toast("Debe quedar al menos una bitácora.", "error");
+    if (!window.confirm("¿Borrar esta bitácora del registro?")) return;
+    DB.data.lore = DB.data.lore.filter(function(x){ return x.id !== el.dataset.id; });
+    state.editId = null;
+    DB.save();
+    render();
+    toast("Bitácora retirada.");
+    return;
+  }
+
+  if (action === "admin-export"){
+    var blob = new Blob([JSON.stringify(DB.data, null, 2)], { type:"application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "vaak-outbreak.data.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast("JSON descargado. Súbelo al repositorio para publicarlo.");
+    return;
+  }
+
+  if (action === "admin-import"){ $("#admin-file").click(); return; }
+
+  if (action === "admin-reset"){
+    if (!window.confirm("¿Restaurar el contenido de fábrica? Se pierden los cambios de este navegador.")) return;
+    DB.reset();
+    state.editId = null;
+    render();
+    toast("Contenido restaurado.");
+  }
+});
+
+document.addEventListener("change", function(ev){
+  if (ev.target.id === "admin-file" && ev.target.files[0]){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var parsed = JSON.parse(reader.result);
+        if (!parsed || !parsed.streamers || !parsed.phases || !parsed.lore || !parsed.event) {
+          throw new Error("Faltan bloques obligatorios");
+        }
+        DB.data = parsed;
+        DB.save();
+        state.editId = null;
+        render();
+        toast("Datos importados.");
+      }catch(err){
+        toast("El archivo no tiene la forma esperada: " + err.message, "error");
+      }
+    };
+    reader.readAsText(ev.target.files[0]);
+    ev.target.value = "";
+  }
+});
+
+$("#menu-toggle").addEventListener("click", function(){
+  var panel = $("#menu-panel");
+  panel.hidden = !panel.hidden;
+  this.setAttribute("aria-expanded", String(!panel.hidden));
+});
+
+window.addEventListener("hashchange", route);
+
+/* ==========================================================================
+   13. REVELADO AL HACER SCROLL
+   Un solo observador para toda la página.
+   ========================================================================== */
+var revealObserver = null;
+if ("IntersectionObserver" in window){
+  revealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting){
+        entry.target.dataset.visible = "true";
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin:"0px 0px -10% 0px", threshold:0.06 });
+}
+
+function applyReveal(root){
+  if (!revealObserver) return;
+  var nodes = $$(".reveal:not([data-seen])", root || document);
+  nodes.forEach(function(node){
+    node.dataset.seen = "1";
+    if (node.getBoundingClientRect().top < window.innerHeight * 0.94){
+      node.dataset.visible = "true";
+      return;
+    }
+    revealObserver.observe(node);
+  });
+}
+
+/* ==========================================================================
+   14. GOTEO DE SANGRE EN CANVAS
+  Ligero por construcción: pocos gotas, radios limitados y apagado por debajo
+   de 768px o cuando la pestaña no está visible.
+   ========================================================================== */
+var blood = {
+  canvas: $("#blood"),
+  ctx: null,
+  drops: [],
+  raf: 0,
+  running: false,
+
+  init: function(){
+    this.ctx = this.canvas.getContext("2d", { alpha:true });
+    this.resize();
+    this.sync();
+    window.addEventListener("resize", function(){ blood.resize(); blood.sync(); });
+    document.addEventListener("visibilitychange", function(){ blood.sync(); });
+    this.loveReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  },
+
+  allowed: function(){
+    return window.innerWidth >= 768 && !this.loveReduced && document.visibilityState === "visible";
+  },
+
+  resize: function(){
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(window.innerWidth * dpr);
+    this.canvas.height = Math.floor(window.innerHeight * dpr);
+    this.canvas.style.width = window.innerWidth + "px";
+    this.canvas.style.height = window.innerHeight + "px";
+    if (this.ctx) this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  },
+
+  seed: function(){
+    var margin = Math.min(104, Math.max(56, window.innerWidth * 0.07));
+    this.drops = [];
+    // Cuatro por lado: suficiente para leerlo como goteo, poco para el coste.
+    for (var side = 0; side < 2; side++){
+      for (var i = 0; i < 4; i++){
+        this.drops.push({
+          side: side,
+          x: side === 0
+            ? Math.random() * margin * 0.85 + 4
+            : window.innerWidth - 4 - Math.random() * margin * 0.85,
+          y: -Math.random() * window.innerHeight,
+          speed: 0.5 + Math.random() * 1.6,
+          length: 16 + Math.random() * 62,
+          width: 1 + Math.random() * 1.9,
+          alpha: 0.18 + Math.random() * 0.34
+        });
+      }
+    }
+  },
+
+  frame: function(){
+    var ctx = this.ctx;
+    if (!ctx) return;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#dc2626";
+
+    for (var i = 0; i < this.drops.length; i++){
+      var d = this.drops[i];
+      d.y += d.speed * 2.4;
+      d.speed = Math.min(3.4, d.speed + 0.004);
+
+      var fade = Math.min(1, Math.max(0, (h - d.y) / (h * 0.35)));
+      if (d.y > h || d.y < -d.length * 2){
+        d.y = -d.length - Math.random() * h * 0.4;
+        d.speed = 0.5 + Math.random() * 1.6;
+        d.length = 16 + Math.random() * 62;
+        d.x = d.side === 0
+          ? Math.random() * (Math.min(104, Math.max(56, w * 0.07))) * 0.85 + 4
+          : w - 4 - Math.random() * (Math.min(104, Math.max(56, w * 0.07))) * 0.85;
+        continue;
+      }
+
+      ctx.globalAlpha = d.alpha * fade;
+
+      // Cuerpo de la gota: se estrecha al caer.
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.width / 2, d.y + d.length);
+      ctx.lineTo(d.x + d.width / 2, d.y + d.length);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cabeza redondeada.
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.width * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = 1;
+    this.raf = requestAnimationFrame(this.frame.bind(this));
+  },
+
+  start: function(){
+    if (this.running) return;
+    this.running = true;
+    this.canvas.hidden = false;
+    if (!this.drops.length) this.seed();
+    this.raf = requestAnimationFrame(this.frame.bind(this));
+  },
+
+  stop: function(){
+    if (!this.running) return;
+    this.running = false;
+    cancelAnimationFrame(this.raf);
+    if (this.ctx) this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.canvas.hidden = true;
+    this.drops = [];
+  },
+
+  sync: function(){
+    if (this.allowed()) this.start();
+    else this.stop();
+  }
+};
+
+/* ==========================================================================
+   15. RELOJ
+   ========================================================================== */
+var clockNow = Date.now();
+
+function tickClock(){
+  clockNow = Date.now();
+  state.now = clockNow;
+  $("#clock").textContent = utcClock(clockNow) + " UTC";
+
+  var items = $$("#ticker .ticker-item");
+  if (items.length > 1){
+    items[0].innerHTML = '<span class="live-dot"></span>Día ' + dayIndex() + ' de ' + DB.data.event.totalDays;
+    items[items.length - 1].innerHTML = '<span class="ticker-value">' + utcClock(clockNow) + '</span><span class="ticker-dim">UTC</span>';
+  }
+}
+
+var tickerInterval = setInterval(tickClock, 1000);
+document.addEventListener("visibilitychange", function(){
+  if (document.visibilityState === "hidden"){
+    clearInterval(tickerInterval);
+  } else {
+    clockNow = Date.now();
+    state.now = clockNow;
+    tickerInterval = setInterval(tickClock, 1000);
+  }
+});
+
+/* ==========================================================================
+   16. ARRANQUE
+   ========================================================================== */
+DB.init();
+blood.init();
+route();
+applyReveal(document);
+
+/** Reaplica el revelado cuando cambia una vista, sin crear otro observador. */
+var originalRender = render;
+render = function(){
+  originalRender();
+  applyReveal(document);
+};
+render();
+</script>
+</body>
+</html>
